@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Login Daten</title>
+    <link rel="stylesheet" href="css/LoginStyle.css">
+</head>
+
+<body>
+    <label>First Name</label>
+    <input type="text" id="Fname">
+    <br><br>
+
+    <label>Last Name</label>
+    <input type="text" id="Lname">
+    <br><br>
+
+    <label>Department</label>
+    <select id="Dep">
+        <option value="Development">Development</option>
+        <option value="Testing">Testing</option>
+        <option value="Management">Management</option>
+        <option value="Administration">Administration</option>
+    </select>
+    <br><br>
+
+    <label>Can Swim</label>
+    <select id="Swim">
+        <option value="yes">Yes</option>
+        <option value="no">No</option>
+    </select>
+    <br><br>
+
+    <label>CNIC No</label>
+    <input type="number" id="Cinc">
+    <br><br>
+
+    <button id="AddBtn">Add</button>
+    <button id="RetrieveBtn">Retrieve</button>
+    <button id="UpdateBtn">Update</button>
+    <button id="DeleteBtn">Delete</button>
+
+    <!--Firebase DAtenbank verbindung-->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyA8AWwq9SWpTjLwxzVaVKuo6HcVdfH5FhU",
+          authDomain: "dojo-website-d7f0c.firebaseapp.com",
+          databaseURL: "https://dojo-website-d7f0c-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "dojo-website-d7f0c",
+          storageBucket: "dojo-website-d7f0c.appspot.com",
+          messagingSenderId: "157008216879",
+          appId: "1:157008216879:web:461d14ed280ed2a6ab17da"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        import{getDatabase, ref, child, get, set, update, remove} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+        const db = getDatabase();
+
+        let Fname = document.getElementById('Fname');
+        let Lname = document.getElementById('Lname');
+        let Depth = document.getElementById('Dep');
+        let Swim = document.getElementById('Swim');
+        let Cnic = document.getElementById('Cinc');
+
+        let AddBtn = document.getElementById('AddBtn');
+        let RetrieveBtn = document.getElementById('RetrieveBtn');
+        let UpdateBtn = document.getElementById('UpdateBtn');
+        let DeleteBtn = document.getElementById('DeleteBtn');   
+
+        function AddData(){
+            set(ref(db, 'Teilnehmer/' + Cinc.value), {
+                nameofemployee: {firstname: Fname.value, lastname: Lname.value},
+                department: Depth.value,
+                canswim: (Swim.value == "yes"),
+                cinc: Number(Cinc.value),
+            })
+            .then(()=>{
+                alert("Data added successful");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful");
+                console.log(error);
+            })
+        }
+
+        function RetrieveData(){
+            const dbRef = ref(db);
+            get(child(dbRef, 'Teilnehmer/' + Cinc.value)).then((snapshot)=>{
+                if(snapshot.exists()){
+                    Fname.value = snapshot.val().nameofemployee.firstname;
+                    Lname.value = snapshot.val().nameofemployee.lastname;
+                    Depth.value = snapshot.val().department;
+                    Swim.value = snapshot.val().canswim? "yes" : "no";
+                }
+                else{
+                    alert("Teilnehmer doesn't exist");
+                }
+            }).catch((error) => {
+                console.error("Error retrieving data:", error);
+            });
+        }
+
+        function UpdateData(){
+            update(ref(db, 'Teilnehmer/' + Cinc.value), {
+                nameofemployee: {firstname: Fname.value, lastname: Lname.value},
+                department: Depth.value,
+                canswim: (Swim.value == "yes")
+            })
+            .then(()=>{
+                alert("Data update successful");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful");
+                console.log(error);
+            })
+        }
+
+        function DeleteData(){
+            remove(ref(db, 'Teilnehmer/' + Cinc.value))
+            .then(()=>{
+                alert("Data delete successful");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful");
+                console.log(error);
+            })
+        }
+
+        AddBtn.addEventListener('click', AddData);
+        RetrieveBtn.addEventListener('click', RetrieveData);
+        UpdateBtn.addEventListener('click', UpdateData);
+        DeleteBtn.addEventListener('click', DeleteData);
+    </script>
+</body>
+</html>

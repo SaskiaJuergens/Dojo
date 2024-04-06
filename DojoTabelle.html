@@ -1,12 +1,182 @@
 ﻿<!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title></title>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabellenzeile hinzufügen</title>
+    <link rel="stylesheet" href="../css/StyleSheet.css" />
 </head>
 <body>
-    <h1>This is a Heading</h1>
-    <p>This is a paragraph</p>
-    <p>This is antoher paragraoh</p>
+    <button>alle Auswertungsbogen ausdrucken</button>
+    <button>neue Tabelle</button>
+    <button>Teilnehmer hinzufügen</button>
+
+    <form action="" id="dojoWebsite">
+
+        <h1>Tabellenname</h1>
+        <table id="TeilenhmerTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Vorname</th>
+                    <th>Geburstdatum</th>
+                    <th>Alter <button>!</button></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
+                    <th>Graduierung</th>
+                    <!--Mokuroku (Weiß)  (木録) - Grundstufe
+                        Shoden (Gelb)  (初伝) - Erste Stufe
+                        Chuden (Orange)  (中伝) - Mittelstufe
+                        Okuden (Grün) (奥伝) - Innere Stufe
+                        Menkyo (Schwarz)  (免許) - Meisterstufe-->
+                    <th>Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
+                    <th>Nationalität</th>
+                    <th>Verein</th>
+                    <th>Schnellbogenschießen</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="Teilnehmer">
+                <!-- Placeholder for dynamic data -->
+                <tr>
+                    <td> <input placeholder="Name" type="text" id="name" /> </td>
+                    <td> <input placeholder="Vorname" type="text" id="vorname" /> </td>
+                    <td> <input placeholder="Geburstdatum" type="date" id="data" /> </td>
+                    <td> <input placeholder="Alter" type="number" id="age" /> </td>
+                    <td>    <select id="rank">
+                                <option value="Mokuroku">Mokuroku</option>
+                                <option value="Shoden">Shoden</option>
+                                <option value="Chuden">Chuden</option>
+                                <option value="Okuden">Okuden</option>
+                                <option value="Menkyo">Menkyo</option>
+                            </select> </td>
+                    <td>    <select id="sex">
+                                <option value="Weiblich">Weiblich</option>
+                                <option value="Männlich">Männlich</option>
+                                <option value="Non-binär">Non-binär</option>
+                            </select> </td>
+                    <td> <input placeholder="Nationalität" type="text" id="nation" /> </td>
+                    <td> <input placeholder="Verein" type="text" id="verein" /> </td>
+                    <td><button>Bewerten</button></td>
+                    <td><button id="PrintBtn">Drucken</button>
+                        <button id="AddBtn">Speichern</button>
+                        <!--<button id="RetrieveBtn">Retrieve</button>-->
+                        <button id="UpdateBtn">Update</button>
+                        <button id="DeleteBtn">Löschen</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button>Teilnehmer hinzufügen</button>
+    </form>
+
+    <!--Firebase Datenbank verbindung-->
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+    
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+        apiKey: "AIzaSyA8AWwq9SWpTjLwxzVaVKuo6HcVdfH5FhU",
+        authDomain: "dojo-website-d7f0c.firebaseapp.com",
+        databaseURL: "https://dojo-website-d7f0c-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "dojo-website-d7f0c",
+        storageBucket: "dojo-website-d7f0c.appspot.com",
+        messagingSenderId: "157008216879",
+        appId: "1:157008216879:web:461d14ed280ed2a6ab17da"
+        };
+    
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        import{getDatabase, ref, child, get, set, update, remove} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+        const db = getDatabase();
+
+        let Fname = document.getElementById('vorname');
+        let Lname = document.getElementById('name');
+        let Datum = document.getElementById('data');
+        let Age = document.getElementById('age');
+        let Rank = document.getElementById('rank');
+        let Sex = document.getElementById('sex');
+        let Nation = document.getElementById('nation');
+        let Verein = document.getElementById('verein');
+
+        let AddBtn = document.getElementById('AddBtn');
+        let RetrieveBtn = document.getElementById('RetrieveBtn');
+        let UpdateBtn = document.getElementById('UpdateBtn');
+        let DeleteBtn = document.getElementById('DeleteBtn');   
+
+        function AddData(){
+            set(ref(db, 'Teilnehmer/' + Fname.value + '_' + Lname.value), { // Hier verwenden wir sowohl Fname.value als auch Lname.value
+                nameofTeilnehmer: {firstname: Fname.value, lastname: Lname.value},
+                Geburstdatum: Datum.value,
+                Alter: Number(Age.value),
+                Graduierung: Rank.value,
+                Geschlecht: Sex.value,
+                Nationalität: Nation.value,
+                Verein: Verein.value,
+            })
+            .then(()=>{
+                alert("Data added successful");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful");
+                console.log(error);
+            })
+        }
+
+        function RetrieveData(){
+            const dbRef = ref(db);
+            get(child(dbRef, 'Teilnehmer/' + nameofTeilnehmer.value)).then((snapshot)=>{
+                if(snapshot.exists()){
+                    Datum.value = snapshot.val().Geburstdatum,
+                    Age.value = snapshot.val().Alter,
+                    Rank.value = snapshot.val().Graduierung,
+                    Sex.value = snapshot.val().Geschlecht,
+                    Nation.value = snapshot.val().Nationalität,
+                    Verein.value = snapshot.val().Verein;
+                }
+                else{
+                    alert("Teilnehmer doesn't exist");
+                }
+            }).catch((error) => {
+                console.error("Error retrieving data:", error);
+            });
+        }
+
+        function UpdateData(){
+            update(ref(db, 'Teilnehmer/' + nameofTeilnehmer.value), {
+                Geburstdatum: Datum.value,
+                Alter: Number(Age.value),
+                Graduierung: Rank.value,
+                Geschlecht: Sex.value,
+                Nationalität: Nation.value,
+                Verein: Verein.value,
+            })
+            .then(()=>{
+                alert("Data update successful");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful");
+                console.log(error);
+            })
+        }
+
+        function DeleteData(){
+            remove(ref(db, 'Teilnehmer/' + nameofTeilnehmer.value))
+            .then(()=>{
+                alert("Data delete successful");
+            })
+            .catch((error)=>{
+                alert("Unsuccessful");
+                console.log(error);
+            })
+        }
+
+        AddBtn.addEventListener('click', AddData);
+        RetrieveBtn.addEventListener('click', RetrieveData);
+        UpdateBtn.addEventListener('click', UpdateData);
+        DeleteBtn.addEventListener('click', DeleteData);
+    </script>
 </body>
 </html>
