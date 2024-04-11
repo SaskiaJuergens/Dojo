@@ -16,3 +16,11 @@ tr:nth-child(even) {
 #addRowBtn {
     margin-bottom: 10px;
 }
+
+th {
+    cursor: pointer;
+}
+
+th:hover {
+    background-color: #f2f2f2;
+}

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabellenzeile hinzufügen</title>
+    <link rel="stylesheet" href="css/StyleSheet.css" />
+    
+</head>
+
+<body>
+    <button id="backBtn">Zurück zur Bewertungsliste</button>
+    <button id="ListPrintBtn">Urkunden Drucken</button>
+
+    <h1>Mannschaftsauswertung</h1>
+    <div class="container mt-3">
+        <h1>Bestenliste</h1>
+        <table class="table table-dark" id="TeilenhmerTable">
+            <thead>
+                <tr>
+                    <th>Verein</th>
+                    <th>1. Plätze (je 5Pkt.)</th> <!--5Pkz-->
+                    <th>2. Plätze (je 4Pkt.)</th>
+                    <th>3. Plätze (je 3Pkt.)</th>
+                    <th>4. Plätze (je 2Pkt.)</th>
+                    <th>5. Plätze (je 1Pkt.)</th>
+                    <th>Summe</th> <!--Anzahl 1.Plätze*5Pkt. + Anzahl 2.Plätze*4Pkt. + usw.-->
+                    <th></th>
+                    <th>Plazierung</th> <!--höchste Pkt. == erster Platz-->
+                </tr>
+            </thead>
+            <tbody id="tbody1">
+                <!-- Placeholder for dynamic data -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="js/switchPageTop.js"></script>
+</body>
+</html>
+    
