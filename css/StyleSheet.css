@@ -1,26 +1,18 @@
-﻿table {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-th, td {
-    border: 1px solid #dddddd;
-    text-align: left;
-    padding: 8px;
-}
-
-tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-#addRowBtn {
-    margin-bottom: 10px;
-}
-
-th {
+﻿th {
     cursor: pointer;
 }
 
 th:hover {
     background-color: #f2f2f2;
+}
+
+/* Hintergrund Dimming */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1040;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
 }

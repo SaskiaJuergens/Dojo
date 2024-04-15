@@ -4,8 +4,8 @@
     <meta charset='UTF-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tabellenzeile hinzufügen</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/StyleSheet.css" />
-    
 </head>
 
 <body>
@@ -13,16 +13,17 @@
     <button id="printAllBtn">alle Auswertungsbogen ausdrucken</button>
     <button id="FinalTableBtn">Zur Auswertungsliste</button>
 
-    <div class="container mt-3">
+    <div class="table-container">
+        <br>
         <h1>Probe Tabelle</h1>
-        <table class="table table-dark" id="TeilenhmerTable">
+        <table class="table" id="TeilenhmerTable">
             <thead>
                 <tr>
                     <th onclick="sortTable(0)">Name</th>
                     <th onclick="sortTable(1)">Vorname</th>
                     <th onclick="sortTable(2)">Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
                     <th onclick="sortTable(3)">Geburstdatum</th>
-                    <th onclick="sortTable(4)">Alter<button>!</button></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
+                    <th onclick="sortTable(4)">Alter    <button>!</button></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
                     <th onclick="sortTable(5)">Nationalität</th>
                     <th onclick="sortTable(6)">Verein</th>
                     <th onclick="sortTable(7)">Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
@@ -67,27 +68,52 @@
         </table>
     </div>
 
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+
+    <!-- Modal Start -->
+    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true" style="display: none;">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Teilnehmerdaten bearbeiten</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <!-- Formularfelder für Bearbeitung hier einfügen -->
+                <label class="labs"> Name: </label>
+                <input type="text" id="NameMod"> <br>
+                <label class="labs"> Vorname: </label>
+                <input type="text" id="VornameMod"> <br>
+                <label class="labs"> Geschlecht: </label>
+                <select id="SexMod">
+                <option value="Weiblich">Weiblich</option> 
+                <option value="Männlich">Männlich</option>
+                <option value="Non-binär">Non-binär</option></select> <br>
+                <label class="labs"> Geburstdatum: </label>
+                <input type="date" id="DataMod"/> <br>
+                <label class="labs"> Alter: </label>
+                <input type="number" id="AgeMod"/> <br>
+                <label class="labs"> Nationalität: </label>
+                <input type="text" id="NationMod"/> <br>
+                <label class="labs"> Verein: </label>
+                <input type="text" id="VereinMod"/> <br>
+                <label class="labs"> Graduierung: </label>
+                <select id="RankMod">
+                <option value="Mokuroku">Mokuroku</option>
+                <option value="Shoden">Shoden</option>
+                <option value="Chuden">Chuden</option>
+                <option value="Okuden">Okuden</option>
+                <option value="Menkyo">Menkyo</option></select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="UpdTeil()">Speichern</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="DelTeil()">Löschen</button>
+            </div>
         </div>
-        <div class="modal-body">
-          ...
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
-        </div>
-      </div>
     </div>
-  </div>
-  <!-- Modal End -->
+    <!-- Modal Ende -->
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -213,16 +239,18 @@
         var tbody = document.getElementById('tbody1');
 
         function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein){
-            let trow = document.createElement("tr");
-            let td1 = document.createElement("td");
-            let td2 = document.createElement("td");
-            let td3 = document.createElement("td");
-            let td4 = document.createElement("td");
-            let td5 = document.createElement("td");
-            let td6 = document.createElement("td");
-            let td7 = document.createElement("td");
-            let td8 = document.createElement("td");
-            let td9 = document.createElement("td");
+            var trow = document.createElement("tr");
+            var td1 = document.createElement("td");
+            var td2 = document.createElement("td");
+            var td3 = document.createElement("td");
+            var td4 = document.createElement("td");
+            var td5 = document.createElement("td");
+            var td6 = document.createElement("td");
+            var td7 = document.createElement("td");
+            var td8 = document.createElement("td");
+            var td9 = document.createElement("td");
+            var ratingButton = document.createElement("td");
+            var ControlDiv = document.createElement("td");
 
             td1.innerHTML= name;
             td2.innerHTML= vorname;
@@ -232,7 +260,9 @@
             td6.innerHTML= nation;
             td7.innerHTML= verein;
             td8.innerHTML= rank;
-            
+            ratingButton.innerHTML = '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="" onclick="FillTboxes('+Nummer+')">Bewerten</button>'
+            ControlDiv.innerHTML = '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">Bearbeiten</button>'
+
             trow.appendChild(td1);
             trow.appendChild(td2);
             trow.appendChild(td3);
@@ -241,52 +271,8 @@
             trow.appendChild(td6);
             trow.appendChild(td7);
             trow.appendChild(td8);
-
-            var ControlDiv = document.createElement("div");
-            ControlDiv.innerHTML = '<button type="button" class="btn btn-primary my-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes(null)">Bearbeiten</button>'
-            ControlDiv.innerHTML += '<button type="button" class="btn btn-primary my-2" data-toggle="modal" data-target="#exampleModalCenter" onclick="FillTboxes(null)">Löschen</button>';
-
-            var ratingButton = document.createElement("button");
-            ratingButton.innerHTML = "Bewerten";
-            ratingButton.className = "btn btn-primary my-2";
-            ratingButton.setAttribute("data-toggle", "modal");
-            ratingButton.setAttribute("data-target", "#exampleModalCenter");
-            ratingButton.onclick = function() { FillTboxes(name); };
-
-            /*var editButton = document.createElement("button");
-            editButton.innerHTML = "Bearbeiten";
-            editButton.className = "btn btn-primary my-2";
-            editButton.setAttribute("data-toggle", "modal");
-            editButton.setAttribute("data-target", "#exampleModalCenter");
-            editButton.onclick = function() { FillTboxes(name); };
-
-            var deleteButton = document.createElement("button");
-            deleteButton.innerHTML = "Löschen";
-            deleteButton.className = "btn btn-primary my-2";
-            deleteButton.setAttribute("data-toggle", "modal");
-            deleteButton.setAttribute("data-target", "#exampleModalCenter");
-            deleteButton.onclick = function() { DeleteData(name); };
-
-            var tdRatingButton = document.createElement("td");
-            var tdEditButton = document.createElement("td");
-            var tdDeleteButton = document.createElement("td");
-
-            tdRatingButton.appendChild(ratingButton);
-            tdEditButton.appendChild(editButton);
-            tdDeleteButton.appendChild(deleteButton);
-
-            trow.appendChild(tdRatingButton);
-            trow.appendChild(tdEditButton);
-            trow.appendChild(tdDeleteButton);*/
-
-            var tdRatingButton = document.createElement("td");
-            var tdEditButton = document.createElement("td");
-
-            tdRatingButton.appendChild(ratingButton);
-            tdEditButton.appendChild(ControlDiv);
-
-            trow.appendChild(tdRatingButton);
-            trow.appendChild(tdEditButton);
+            trow.appendChild(ratingButton);
+            trow.appendChild(ControlDiv);
 
             tbody.appendChild(trow);
 
