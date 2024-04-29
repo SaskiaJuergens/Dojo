@@ -4,17 +4,17 @@
     <meta charset='UTF-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tabellenzeile hinzufügen</title>
-    <link rel="stylesheet" href="css/StyleSheet.css" />
-    
+    <!--<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">-->
+    <link rel="stylesheet" href="css/StyleSheet1.css" />
 </head>
 
 <body>
     <button id="backBtn">Zurück zur Teilnehmerliste</button>
     <button id="TopListBtn">Zur Bestenliste</button>
 
-    <div class="container mt-3">
+    <div class="table-container">
         <h1>Bewertungsliste</h1>
-        <table class="table table-dark" id="TeilenhmerTable">
+        <table class="table" id="TeilenhmerTable">
             <thead>
                 <tr>
                     <th rowspan="2" onclick="sortTable(0)">Name</th>
@@ -82,7 +82,7 @@
         
 //-------------Getting all Data ----------->
 function GetAllDataRealTime(){
-            const dbRef = ref(db, "Tabelle 2024/Teilnehmer");
+            const dbRef = ref(db, "Tabellen/Probe Tabelle/Teilnehmer");
 
             onValue(dbRef,(snapshot)=>{
                 var teilnehmer = [];

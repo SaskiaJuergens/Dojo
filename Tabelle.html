@@ -23,7 +23,7 @@
                     <th onclick="sortTable(1)">Vorname</th>
                     <th onclick="sortTable(2)">Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
                     <th onclick="sortTable(3)">Geburstdatum</th>
-                    <th onclick="sortTable(4)">Alter    <button>!</button></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
+                    <th onclick="sortTable(4)">Alter<button>!</button></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
                     <th onclick="sortTable(5)">Nationalität</th>
                     <th onclick="sortTable(6)">Verein</th>
                     <th onclick="sortTable(7)">Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
@@ -46,7 +46,7 @@
                 <tr>
                     <td> <input placeholder="Name" type="text" id="name" /> </td>
                     <td> <input placeholder="Vorname" type="text" id="vorname" /> </td>
-                    <td>    <select id="sex">
+                    <td> <select id="sexID" aria-label="Geschlecht">
                         <option value="Weiblich">Weiblich</option> 
                         <option value="Männlich">Männlich</option>
                         <option value="Non-binär">Non-binär</option>
@@ -54,7 +54,7 @@
                     <td> <input placeholder="Alter" type="number" id="age" /> </td>
                     <td> <input placeholder="Nationalität" type="text" id="nation" /> </td>
                     <td> <input placeholder="Verein" type="text" id="verein" /> </td>
-                    <td>    <select id="rank">
+                    <td>    <select id="rankID" aria-label="Graduierung">
                         <option value="Mokuroku">Mokuroku</option>
                         <option value="Shoden">Shoden</option>
                         <option value="Chuden">Chuden</option>
@@ -86,7 +86,7 @@
                 <label class="labs"> Vorname: </label>
                 <input type="text" id="VornameMod"> <br>
                 <label class="labs"> Geschlecht: </label>
-                <select id="SexMod">
+                <select id="SexMod" aria-label="Geschlecht">
                 <option value="Weiblich">Weiblich</option> 
                 <option value="Männlich">Männlich</option>
                 <option value="Non-binär">Non-binär</option></select> <br>
@@ -99,7 +99,7 @@
                 <label class="labs"> Verein: </label>
                 <input type="text" id="VereinMod"/> <br>
                 <label class="labs"> Graduierung: </label>
-                <select id="RankMod">
+                <select id="RankMod" aria-label="Graduierungt">
                 <option value="Mokuroku">Mokuroku</option>
                 <option value="Shoden">Shoden</option>
                 <option value="Chuden">Chuden</option>
@@ -107,8 +107,8 @@
                 <option value="Menkyo">Menkyo</option></select>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="UpdTeil()">Speichern</button>
-                <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="DelTeil()">Löschen</button>
+                <button id="UpdModBtn" type="button" class="btn btn-success" data-dismiss="modal" onclick="UpdTeil()">Speichern</button>
+                <button id="DeleteModBtn" type="button" class="btn btn-danger" data-dismiss="modal" onclick="DelTeil()">Löschen</button>
             </div>
         </div>
         </div>
@@ -123,7 +123,7 @@
     <script src="js/switchPage.js"></script>
 
     <script type="module">
-//-------------Firebase DB Conection ----------->
+    //-------------Firebase DB Conection ----------->
         // Import the functions you need from the SDKs you need
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
 
@@ -144,21 +144,32 @@
         import{getDatabase, ref, child, onValue, get, set, update, remove} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
         const db = getDatabase();     
 
-//----------Add Teilnehmer-------->
-        Nummer = 0;
+
+
+        // Extrahiere den tableName aus der URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var tableName = urlParams.get('tableName');
+        // Verwende den tableName auf der Seite
+        console.log('TableName:', tableName);
+
+
+
+        //----------Add Teilnehmer-------->
+        var Nummer = 0;
         let Fname = document.getElementById('vorname');
         let Lname = document.getElementById('name');
         let Datum = document.getElementById('data');
         let Age = document.getElementById('age');
-        let Rank = document.getElementById('rank');
-        let Sex = document.getElementById('sex');
+        let Rank = document.getElementById('rankID');
+        let Sex = document.getElementById('sexID');
         let Nation = document.getElementById('nation');
         let Verein = document.getElementById('verein');
         
         let AddBtn = document.getElementById('AddBtn');
+        
         function AddData(){
         // Überprüfen, ob die Nummer bereits in der Datenbank vorhanden ist
-        let numRef = ref(db, 'Tabelle 2024/Teilnehmer/' + Nummer);
+        let numRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + Nummer);
         get(numRef)
         .then((snapshot) => {
             if (snapshot.exists()) {
@@ -166,7 +177,7 @@
                 Nummer++;
                 AddData(); // Rekursiver Aufruf der Funktion, um erneut zu versuchen
             } else {
-                set(ref(db, 'Tabelle 2024/Teilnehmer/' + Nummer), { // Verwenden Sie die erhöhte Nummer
+                set(ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + Nummer), { // Verwenden Sie die erhöhte Nummer
                     Vorname: Fname.value,
                     Name: Lname.value,
                     Geburstdatum: Datum.value,
@@ -176,7 +187,6 @@
                     Nationalität: Nation.value,
                     Verein: Verein.value,
                     Schnellbogenschießen: {
-                    Pkt: 0,
                     Platzierung: 0,
                     Sekunden: 0
                     },
@@ -209,7 +219,7 @@
         function GetAllDataOnce(){
             const dbRef = ref(db);
 
-            get(child(dbRef, "Tabelle 2024/Teilnehmer"))
+            get(child(dbRef, "Tabellen/" + tableName + "/Teilnehmer"))
             .then((snapshot)=>{
                 var teilnehmer = [];
                 snapshot.forEach(childSnapshot => {
@@ -221,7 +231,7 @@
         }
 
         function GetAllDataRealTime(){
-            const dbRef = ref(db, "Tabelle 2024/Teilnehmer");
+            const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
 
             onValue(dbRef,(snapshot)=>{
                 var teilnehmer = [];
@@ -235,11 +245,13 @@
         window.onload = GetAllDataRealTime;
 
     //-------- Filling Tabelle -------->
-        var Nummer = 0;
+        //var Nummer = 0;
+        var teilnehmerList = [];
         var tbody = document.getElementById('tbody1');
 
-        function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein){
+        function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein) {
             var trow = document.createElement("tr");
+            var td0 = document.createElement("td");
             var td1 = document.createElement("td");
             var td2 = document.createElement("td");
             var td3 = document.createElement("td");
@@ -252,16 +264,31 @@
             var ratingButton = document.createElement("td");
             var ControlDiv = document.createElement("td");
 
-            td1.innerHTML= name;
-            td2.innerHTML= vorname;
-            td3.innerHTML= sex;
-            td4.innerHTML= data;
-            td5.innerHTML= age;
-            td6.innerHTML= nation;
-            td7.innerHTML= verein;
-            td8.innerHTML= rank;
-            ratingButton.innerHTML = '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="" onclick="FillTboxes('+Nummer+')">Bewerten</button>'
-            ControlDiv.innerHTML = '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModalCenter">Bearbeiten</button>'
+            teilnehmerList.push([name, vorname, sex, data, age, nation, verein, rank]); /*Teilnehmerliste füllen*/
+
+            td0.innerHTML = ++Nummer;
+            td1.innerHTML = name;
+            td2.innerHTML = vorname;
+            td3.innerHTML = sex;
+            td4.innerHTML = data;
+            td5.innerHTML = age;
+            td6.innerHTML = nation;
+            td7.innerHTML = verein;
+            td8.innerHTML = rank;
+            ratingButton.innerHTML = '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="" onclick="FillTboxes(null)">Bewerten</button>'
+            //ControlDiv.innerHTML = '<button id="bearbeiten-button-id" type="button" class="btn btn-primary my-2 ml-2" data-toggle="modal" data-target="#exampleModalCenter">Bearbeiten</button>'
+
+            var bearbeitenButton = document.createElement("button");
+            bearbeitenButton.type = "button";
+            bearbeitenButton.className = "btn btn-primary my-2 ml-2";
+            bearbeitenButton.dataset.toggle = "modal";
+            bearbeitenButton.dataset.target = "#exampleModalCenter";
+            bearbeitenButton.innerText = "Bearbeiten";
+            bearbeitenButton.addEventListener('click', function() {
+                // Hier den Index der Zeile übergeben, die bearbeitet werden soll
+                FillTboxes(trow.rowIndex-1);  // Übergeben Sie den aktuellen Wert von 'Nummer' als Index
+            });
+            ControlDiv.appendChild(bearbeitenButton);
 
             trow.appendChild(td1);
             trow.appendChild(td2);
@@ -276,6 +303,56 @@
 
             tbody.appendChild(trow);
 
+
+                /*// Hier können Sie sicher sein, dass die Liste nicht leer ist
+                console.log("Listlänge:", teilnehmerList.length);
+
+                console.log("Inhalt der Liste:");
+                //console.log("Nummer:", Nummer);
+                teilnehmerList.forEach((teilnehmer) => {
+                    console.log(`Teilnehmer ${teilnehmer[0]}:`, teilnehmer.slice(1)); // Nummer überspringen
+                });*/
+            
+        }
+
+        
+    
+        var NameMod = document.getElementById('NameMod');
+        var VornameMod = document.getElementById('VornameMod');
+        var SexMod = document.getElementById('SexMod');
+        var DataMod = document.getElementById('DataMod');
+        var AgeMod = document.getElementById('AgeMod');
+        var NationMod = document.getElementById('NationMod');
+        var VereinMod = document.getElementById('VereinMod');
+        var RankMod = document.getElementById('RankMod');
+
+        var BTNmodUpd = document.getElementById('UpdModBtn');
+        var BTNmodDel = document.getElementById('DeleteModBtn');
+        
+        function FillTboxes(index){
+            console.log("Index:", index);
+
+
+            if(index==null){
+                NameMod.value = "";
+                VornameMod.value = ""; 
+                SexMod.value = "";
+                DataMod.value = "";
+                AgeMod.value = "";
+                NationMod.value = "";
+                VereinMod.value = "";
+                RankMod.value = "";
+            } else {
+                //--index;
+                NameMod.value = teilnehmerList[index][0];
+                VornameMod.value = teilnehmerList[index][1]; 
+                SexMod.value = teilnehmerList[index][2];
+                DataMod.value = teilnehmerList[index][3];
+                AgeMod.value = teilnehmerList[index][4];
+                NationMod.value = teilnehmerList[index][5];
+                VereinMod.value = teilnehmerList[index][6];
+                RankMod.value = teilnehmerList[index][7];
+            }
         }
 
         function AddAllTeilnehmer(Teilnehmer) {
@@ -292,7 +369,6 @@
                     element.Geschlecht,
                     element.Nationalität,
                     element.Verein,
-                    element.Schnellbogenschießen.Pkt,
                     element.Schnellbogenschießen.Platzierung,
                     element.Schnellbogenschießen.Sekunden,
                 );

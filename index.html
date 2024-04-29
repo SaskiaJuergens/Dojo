@@ -4,111 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Startseite</title>
+    <link rel="stylesheet" href="css/StyleSheet1.css" />
 </head>
 <body>
-    <h1>Startseite</h1>
-    
-    <!-- Dropdown-Menü für vorhandene Tabellen -->
-    <div>
-        <label for="existingTables">Vorhandene Tabellen:</label>
-        <select id="existingTables">
-            <option value="table1">Tabelle 1</option>
-            <option value="table2">Tabelle 2</option>
-            <!-- Weitere vorhandene Tabellen hier einfügen -->
-        </select>
-        <button onclick="goToSelectedTable()">Auswählen</button>
-    </div>
-
+    <h1>Login</h1>
     <!-- Formularfeld zum Erstellen einer neuen Tabelle -->
     <div>
-        <label>Neue Tabelle erstellen:</label>
-        <input placeholder="Tabellen Name" type="text" id="newTableName" />
-        <button id="AddBtn">Erstellen</button>
+        <label>Anmelden</label>
+        <input placeholder="Name" type="text" id="name" />
+        <input placeholder="Passwort" type="text" id="passwort" />
+        <button id="AnmeldeBtn">Anmelden</button>
+        <br><br>
+
+        <button id="GastBtn">Als Gast weiter</button>
     </div>
+    <br><br>
 
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <script type="module">
-//-------------Firebase DB Conection ----------->
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyA8AWwq9SWpTjLwxzVaVKuo6HcVdfH5FhU",
-            authDomain: "dojo-website-d7f0c.firebaseapp.com",
-            databaseURL: "https://dojo-website-d7f0c-default-rtdb.europe-west1.firebasedatabase.app",
-            projectId: "dojo-website-d7f0c",
-            storageBucket: "dojo-website-d7f0c.appspot.com",
-            messagingSenderId: "157008216879",
-            appId: "1:157008216879:web:461d14ed280ed2a6ab17da"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-
-        import{getDatabase, ref, child, onValue, get, set, update, remove} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
-        const db = getDatabase();
-
-/*
-// -----------Getting all Tabellen -----------
-            function GetAllDataRealTime(){
-            const dbRef = ref(db, "Tabelle/");
-            onValue(dbRef,(snapshot)=>{
-                var tables = [];
-                snapshot.forEach(childSnapshot => {
-                    tables.push(childSnapshot.key);
-                });
-                PopulateExistingTablesDropdown(tables);
-            })
-        }
-        window.onload = GetAllDataRealTime;
-
-  // ------------ Funktion zum Befüllen des Dropdown-Menüs mit vorhandenen Tabellen -------
-  function PopulateExistingTablesDropdown(tables) {
-            const selectElement = document.getElementById("existingTables");
-            selectElement.innerHTML = "";
-            tables.forEach(table => {
-                const option = document.createElement("option");
-                option.value = table;
-                option.text = table;
-                selectElement.appendChild(option);
-            });
-        }*/
-
-// ------- Funktion zum Erstellen einer neuen Tabelle-----------
-        let AddBtn = document.getElementById('AddBtn'); 
-        let name = document.getElementById('newTableName');
-        
-        function createNewTable() {
-            let numRef = ref(db, 'Tabellen/' + name);
-            get(numRef)
-            .then((snapshot) => {
-                if (snapshot.exists()) {
-                    // Wenn die Nummer bereits vorhanden ist, inkrementieren Sie Nummer und versuchen Sie es erneut
-                    alert("Wähle einen anderen Namen")
-                    createNewTable(); // Rekursiver Aufruf der Funktion, um erneut zu versuchen
-                } else {
-                    set(ref(db, 'Tabellen/' + name), { // Verwenden Sie die erhöhte Nummer
-                        Teilnehmer: {}
-                    })
-                    .then(()=>{
-                        alert("Daten erfolgreich hinzugefügt");
-                    })
-                    .catch((error)=>{
-                        alert("Unsuccessful");
-                        console.log(error);
-                    })
-                }
-            })
-            .catch((error) => {
-                console.error("Error getting document:", error);
-            });
-        }
-        AddBtn.addEventListener('click', createNewTable);
-        
-    </script>
+    <script src="js/index.js"></script>
 </body>
 </html>
