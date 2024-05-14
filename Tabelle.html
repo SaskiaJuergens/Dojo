@@ -261,7 +261,7 @@
             bearbeitenButton.innerText = "Bearbeiten";
             bearbeitenButton.addEventListener('click', function() {
                 // Hier den Index der Zeile übergeben, die bearbeitet werden soll
-                FillTboxes(trow.rowIndex-1);  // Übergeben Sie den aktuellen Wert von 'Nummer' als Index
+                FillTboxes(trow.rowIndex-1);  /////////////////////////////////// Übergeben Sie den aktuellen Wert von 'Nummer' als Index
             });
             ControlDiv.appendChild(bearbeitenButton);
 
@@ -320,8 +320,8 @@
                 VereinMod.value = teilnehmerList[index][6];
                 RankMod.value = teilnehmerList[index][7];
                 selectedNummer = teilnehmerList[index][8];
-                
             }
+            console.log("Nummer:", selectedNummer);
         }
 
         function AddAllTeilnehmer(Teilnehmer) {
@@ -345,6 +345,7 @@
         }
         
         function UpdTeilnehmer(){
+            console.log("Nummer:", selectedNummer);
             if (selectedNummer !== null) {
                 update(ref(db, "Tabellen/" + tableName + "/Teilnehmer/" + selectedNummer), {
                     Name: NameMod.value,
@@ -394,14 +395,16 @@
         BTNmodDel.addEventListener('click', DelTeilnehmer);
 
         //-------------Getting all Data ----------->
-
         function GetAllDataRealTime(){
             const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
 
             onValue(dbRef,(snapshot)=>{
                 var teilnehmer = [];
                 snapshot.forEach(childSnapshot => {
-                    teilnehmer.push(childSnapshot.val());
+                    var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
+                    var data = childSnapshot.val();
+                    teilnehmer.push({...data, Nummer: num}); // Die Nummer als Teil der Teilnehmerdaten hinzufügen
+                    console.log("Nummer:", num);
                 });
                 AddAllTeilnehmer(teilnehmer);
             })
