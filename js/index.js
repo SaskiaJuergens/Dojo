@@ -1,22 +1,27 @@
 //Wenn Name=Rainer und Passwort=Kenjutsu, dann auf normale html Seiten
-var id = document.createElementbyId(Name);
-var code = document.createElementbyId(passwort);
+// Definieren Sie die erwarteten Anmeldeinformationen
+const correctName = "Rainer";
+const correctPassword = "Kyujutsu";
 
-if(id == "Rainer" & code == "Kyujutsu"){
-    function goBackToPage() {
+// Funktion zum Überprüfen der Anmeldeinformationen und Weiterleitung bei Erfolg
+function handleLogin() {
+    const name = document.getElementById("name").value;
+    const password = document.getElementById("passwort").value;
+
+    if (name === correctName && password === correctPassword) {
         window.location.href = "Startseite.html";
+    } else {
+        alert("Falscher Benutzername oder falsches Passwort");
     }
-    var ChangeBackBtn = document.getElementById("AnmeldeBtn");
-    ChangeBackBtn.addEventListener("click", goBackToPage);
-} else { 
-    //else error
-    alert("Falscher Benutzertname oder falsches Passwort")
 }
+// Event Listener für die Anmeldeschaltfläche
+document.getElementById("AnmeldeBtn").addEventListener("click", handleLogin);
+
 
 
 //Wenn als Gast weiter nur Daten anschaubar und nicht bearbeitbar. Extre html codieren maybe
-function goBackToGastPage() {
+function goToGastPage() {
     //window.location.href = "Startseite.html";
 }
-var ChangeBtn = document.getElementById("GastBtn");
-ChangeBtn.addEventListener("click", goBackToGastPage);
+// Event Listener für die Gastschaltfläche
+document.getElementById("GastBtn").addEventListener("click", goToGuestPage);
