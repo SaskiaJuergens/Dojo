@@ -107,8 +107,8 @@
                 <option value="Menkyo">Menkyo</option></select>
             </div>
             <div class="modal-footer">
-                <button id="UpdModBtn" type="button" class="btn btn-success" data-dismiss="modal" onclick="UpdTeilnehmer()">Speichern</button>
-                <button id="DeleteModBtn" type="button" class="btn btn-danger" data-dismiss="modal" onclick="DelTeilnehmer()">Löschen</button>
+                <button id="UpdModBtn" type="button" class="btn btn-success" data-dismiss="modal">Speichern</button>
+                <button id="DeleteModBtn" type="button" class="btn btn-danger" data-dismiss="modal">Löschen</button>
             </div>
         </div>
         </div>
@@ -141,7 +141,7 @@
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
 
-        import{getDatabase, ref, child, onValue, get, set, update, remove} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+        import{getDatabase, ref, get, set, update, remove, onValue, child} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
         const db = getDatabase();     
 
 
@@ -155,7 +155,11 @@
 
 
         //----------Add Teilnehmer-------->
+        // Hinzufügen und Bearbeiten von Teilnehmern
         var Nummer = 0;
+        let TeilnehmerListe = [];
+        var tbody = document.getElementById('tbody1');
+
         let Fname = document.getElementById('vorname');
         let Lname = document.getElementById('name');
         let Datum = document.getElementById('data');
@@ -215,42 +219,12 @@
         AddBtn.addEventListener('click', AddData);
 
 
-//-------------Getting all Data ----------->
-        function GetAllDataOnce(){
-            const dbRef = ref(db);
-
-            get(child(dbRef, "Tabellen/" + tableName + "/Teilnehmer"))
-            .then((snapshot)=>{
-                var teilnehmer = [];
-                snapshot.forEach(childSnapshot => {
-                    teilnehmer.push(childSnapshot.val());
-                });
-
-                AddAllTeilnehmer(teilnehmer);
-            })
-        }
-
-        function GetAllDataRealTime(){
-            const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
-
-            onValue(dbRef,(snapshot)=>{
-                var teilnehmer = [];
-                snapshot.forEach(childSnapshot => {
-                    teilnehmer.push(childSnapshot.val());
-                });
-                AddAllTeilnehmer(teilnehmer);
-            })
-        }
-
-        window.onload = GetAllDataRealTime;
-
-
     //-------- Filling Tabelle -------->
         //var Nummer = 0;
         var teilnehmerList = [];
         var tbody = document.getElementById('tbody1');
 
-        function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein) {
+        function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein, num) {
             var trow = document.createElement("tr");
             var td0 = document.createElement("td");
             var td1 = document.createElement("td");
@@ -265,9 +239,9 @@
             var ratingButton = document.createElement("td");
             var ControlDiv = document.createElement("td");
 
-            teilnehmerList.push([name, vorname, sex, data, age, nation, verein, rank]); /*Teilnehmerliste füllen*/
+            teilnehmerList.push([name, vorname, sex, data, age, nation, verein, rank, num]); /*Teilnehmerliste füllen*/
 
-            td0.innerHTML = ++Nummer;
+            td0.innerHTML = num;
             td1.innerHTML = name;
             td2.innerHTML = vorname;
             td3.innerHTML = sex;
@@ -303,21 +277,9 @@
             trow.appendChild(ControlDiv);
 
             tbody.appendChild(trow);
-
-
-                /*// Hier können Sie sicher sein, dass die Liste nicht leer ist
-                console.log("Listlänge:", teilnehmerList.length);
-
-                console.log("Inhalt der Liste:");
-                //console.log("Nummer:", Nummer);
-                teilnehmerList.forEach((teilnehmer) => {
-                    console.log(`Teilnehmer ${teilnehmer[0]}:`, teilnehmer.slice(1)); // Nummer überspringen
-                });*/
             
         }
 
-        
-    
         var NameMod = document.getElementById('NameMod');
         var VornameMod = document.getElementById('VornameMod');
         var SexMod = document.getElementById('SexMod');
@@ -330,6 +292,9 @@
         var BTNmodUpd = document.getElementById('UpdModBtn');
         var BTNmodDel = document.getElementById('DeleteModBtn');
 
+        var selectedNummer = null;
+
+        
         // Funktion zum Füllen des Modal mit den Daten des ausgewählten Teilnehmers
         function FillTboxes(index){
             console.log("Index:", index);
@@ -343,6 +308,7 @@
                 NationMod.value = "";
                 VereinMod.value = "";
                 RankMod.value = "";
+                selectedNummer = null;
             } else {
                 //--index;
                 NameMod.value = teilnehmerList[index][0];
@@ -353,6 +319,7 @@
                 NationMod.value = teilnehmerList[index][5];
                 VereinMod.value = teilnehmerList[index][6];
                 RankMod.value = teilnehmerList[index][7];
+                selectedNummer = teilnehmerList[index][8];
                 
             }
         }
@@ -376,53 +343,72 @@
                 );
             });
         }
-
+        
         function UpdTeilnehmer(){
-            //Nummer = index; 
-            firebase.database().ref("Tabellen/" + tableName + "Teilnehmer/" + Nummer).update({
-                Name: NameMod.value,
-                Vorname: VornameMod.value,
-                Geburstdatum: DataMod.value,
-                Alter: Number(AgeMod.value),
-                Graduierung: RankMod.value,
-                Geschlecht: SexMod.value,
-                Nationalität: NationMod.value,
-                Verein: VereinMod.value,
-            },
-            (error)=>{
-                if(error){
-                    alert("ein Problem beim bearbeiten ist aufegterten");
-                } else{
+            if (selectedNummer !== null) {
+                update(ref(db, "Tabellen/" + tableName + "/Teilnehmer/" + selectedNummer), {
+                    Name: NameMod.value,
+                    Vorname: VornameMod.value,
+                    Geburstdatum: DataMod.value,
+                    Alter: Number(AgeMod.value),
+                    Graduierung: RankMod.value,
+                    Geschlecht: SexMod.value,
+                    Nationalität: NationMod.value,
+                    Verein: VereinMod.value,
+                })
+                .then(() => {
                     alert("Teilnehmer bearbeitet!");
                     GetAllDataRealTime();
                     $("#exampleModalCenter").modal('hide');
-                }
+                })
+                .catch((error) => {
+                    alert("Ein Problem beim Bearbeiten ist aufgetreten");
+                    console.error(error);
+                });
+            } else {
+                alert("Kein Teilnehmer zum Bearbeiten ausgewählt");
             }
-        )}
+        }
+        // Event-Listener für die Schaltfläche "Speichern" hinzufügen
+        BTNmodUpd.addEventListener('click', UpdTeilnehmer);
+
 
         function DelTeilnehmer(){
-            // Ereignislistener für den "Löschen" Button hinzufügen
-            var loeschenButton = ControlDiv.querySelector('#DeleteModBtn');
-            loeschenButton.addEventListener('click', function() {
-                // Den entsprechenden Eintrag in der Firebase-Datenbank entfernen
-                remove(ref(db, "Tabellen/" + tableName + "Teilnehmer/" + Nummer))
-                    .then(() => {
-                        // Erfolgreiche Löschung in der Firebase-Datenbank
-                        alert("Tabelle gelöscht.");
-                    })
-                    .catch((error) => {
-                        // Fehler beim Löschen in der Firebase-Datenbank
-                        alert("Fehler beim Löschen der Tabelle.");
-                        console.error(error);
-                    });
-                
-                // Die Elternknoten (tr) des Buttons (td) auswählen und entfernen
-                trow.parentNode.removeChild(trow);
-            });
-
+            console.log("Nummer:", selectedNummer);
+            if (selectedNummer !== null) {
+                remove(ref(db, "Tabellen/" + tableName + "/Teilnehmer/" + selectedNummer))
+                .then(() => {
+                    alert("Teilnehmer gelöscht!");
+                    GetAllDataRealTime();
+                    $("#exampleModalCenter").modal('hide');
+                })
+                .catch((error) => {
+                    alert("Fehler beim Löschen des Teilnehmers");
+                    console.error(error);
+                });
+            } else {
+                alert("Kein Teilnehmer zum Löschen ausgewählt");
+            }
         }
-        
+        // Event-Listener für die Schaltfläche "Löschen" hinzufügen
+        BTNmodDel.addEventListener('click', DelTeilnehmer);
 
+        //-------------Getting all Data ----------->
+
+        function GetAllDataRealTime(){
+            const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
+
+            onValue(dbRef,(snapshot)=>{
+                var teilnehmer = [];
+                snapshot.forEach(childSnapshot => {
+                    teilnehmer.push(childSnapshot.val());
+                });
+                AddAllTeilnehmer(teilnehmer);
+            })
+        }
+
+        window.onload = GetAllDataRealTime;
+        
     //-------- FullName merken und vorschlagen-------->
     </script>
 </body>
