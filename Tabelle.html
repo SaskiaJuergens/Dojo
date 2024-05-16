@@ -228,20 +228,28 @@
         });
 
         //-------------Getting all Data ----------->
-        function GetAllDataRealTime(){
+        function GetAllDataRealTime() {
             const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
 
-            onValue(dbRef,(snapshot)=>{
-                var teilnehmer = [];
+            onValue(dbRef, (snapshot) => {
                 snapshot.forEach(childSnapshot => {
                     var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
-                    var data = childSnapshot.val();
-                    teilnehmer.push({...data, Nummer: num}); // Die Nummer als Teil der Teilnehmerdaten hinzufügen
-                    console.log("Nummer:", num);
+                    // Hier rufen Sie die Teilnehmerdaten unter Verwendung von num als Schlüssel ab
+                    const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + num);
+                    get(teilnehmerRef).then((snapshot) => {
+                        var data = snapshot.val();
+                        if (data) {
+                            console.log("Data:", data);
+                            data.Nummer = num; // Fügen Sie die Teilnehmernummer zu den Teilnehmerdaten hinzu
+                            console.log("Nummer:", num);
+                            AddTeilnehmer(data);
+                            console.log("Data:", data);
+                        }
+                    });
                 });
-                AddAllTeilnehmer(teilnehmer);
             })
         }
+
 
         window.onload = GetAllDataRealTime;
 
@@ -250,7 +258,7 @@
         var teilnehmerList = [];
         var tbody = document.getElementById('tbody1');
 
-        function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein, num) {
+        function AddTeilnehmer(data) {
             var trow = document.createElement("tr");
             var td0 = document.createElement("td");
             var td1 = document.createElement("td");
@@ -260,31 +268,27 @@
             var td5 = document.createElement("td");
             var td6 = document.createElement("td");
             var td7 = document.createElement("td");
-            var td8 = document.createElement("td");
-            var td9 = document.createElement("td");
             var ratingButton = document.createElement("td");
             var ControlDiv = document.createElement("td");
 
-            teilnehmerList.push([name, vorname, sex, data, age, nation, verein, rank, num]); /*Teilnehmerliste füllen*/
+            td0.innerHTML = data.Nummer; // Hier verwenden wir data.Nummer, um die Teilnehmernummer anzuzeigen
+            td1.innerHTML = data.Name;
+            td2.innerHTML = data.Vorname;
+            td3.innerHTML = data.Geschlecht;
+            td4.innerHTML = data.Geburstdatum;
+            td5.innerHTML = data.Alter;
+            td6.innerHTML = data.Nationalität;
+            td7.innerHTML = data.Verein;
 
-            td0.innerHTML = num;
-            td1.innerHTML = name;
-            td2.innerHTML = vorname;
-            td3.innerHTML = sex;
-            td4.innerHTML = data;
-            td5.innerHTML = age;
-            td6.innerHTML = nation;
-            td7.innerHTML = verein;
-            td8.innerHTML = rank;
-            
             var ratingButton = document.createElement("button");
             ratingButton.type = "button";
             ratingButton.className = "btn btn-primary my-2 ml-2";
             ratingButton.dataset.toggle = "modal";
-            ratingButton.innerText = "Bearbeiten";
+            ratingButton.innerText = "Bewerten";
+            ratingButton.dataset.teilnehmerNummer = data.Nummer;
             ratingButton.addEventListener('click', function() {
-                // Hier den Index der Zeile übergeben, die bearbeitet werden soll
-                Bewerten(trow.rowIndex-1);  /////////////////////////////////// Übergeben Sie den aktuellen Wert von 'Nummer' als Index
+                var teilnehmerNummer = this.dataset.teilnehmerNummer;
+                Bewerten(teilnehmerNummer)
             });
 
             var bearbeitenButton = document.createElement("button");
@@ -293,12 +297,15 @@
             bearbeitenButton.dataset.toggle = "modal";
             bearbeitenButton.dataset.target = "#exampleModalCenter";
             bearbeitenButton.innerText = "Bearbeiten";
+            bearbeitenButton.dataset.teilnehmerNummer = data.Nummer;
             bearbeitenButton.addEventListener('click', function() {
-                // Hier den Index der Zeile übergeben, die bearbeitet werden soll
-                FillTboxes(num);
+                var teilnehmerNummer = this.dataset.teilnehmerNummer;
+                FillTboxes(teilnehmerNummer);
             });
+
             ControlDiv.appendChild(bearbeitenButton);
 
+            trow.appendChild(td0);
             trow.appendChild(td1);
             trow.appendChild(td2);
             trow.appendChild(td3);
@@ -306,13 +313,12 @@
             trow.appendChild(td5);
             trow.appendChild(td6);
             trow.appendChild(td7);
-            trow.appendChild(td8);
             trow.appendChild(ratingButton);
             trow.appendChild(ControlDiv);
 
             tbody.appendChild(trow);
-            
         }
+
 
 
         var NameMod = document.getElementById('NameMod');
@@ -409,11 +415,13 @@
                     element.Verein,
                     element.Schnellbogenschießen.Platzierung,
                     element.Schnellbogenschießen.Sekunden,
+                    element.Nummer
                 );
             });
         }
         
         function Bewerten(nummer){
+            console.log("BwertenNummer: " + nummer);
             window.selectedNummer = nummer;
             var Nummer = window.selectedNummer;
             // Ereignislistener für den "Auswählen" Button hinzufügen
