@@ -227,6 +227,24 @@
             }
         });
 
+        //-------------Getting all Data ----------->
+        function GetAllDataRealTime(){
+            const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
+
+            onValue(dbRef,(snapshot)=>{
+                var teilnehmer = [];
+                snapshot.forEach(childSnapshot => {
+                    var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
+                    var data = childSnapshot.val();
+                    teilnehmer.push({...data, Nummer: num}); // Die Nummer als Teil der Teilnehmerdaten hinzufügen
+                    console.log("Nummer:", num);
+                });
+                AddAllTeilnehmer(teilnehmer);
+            })
+        }
+
+        window.onload = GetAllDataRealTime;
+
     //-------- Filling Tabelle -------->
         //var Nummer = 0;
         var teilnehmerList = [];
@@ -261,7 +279,7 @@
             
             var ratingButton = document.createElement("button");
             ratingButton.type = "button";
-            ratingButton.className = "btn btn-primary";
+            ratingButton.className = "btn btn-primary my-2 ml-2";
             ratingButton.dataset.toggle = "modal";
             ratingButton.innerText = "Bearbeiten";
             ratingButton.addEventListener('click', function() {
@@ -277,7 +295,7 @@
             bearbeitenButton.innerText = "Bearbeiten";
             bearbeitenButton.addEventListener('click', function() {
                 // Hier den Index der Zeile übergeben, die bearbeitet werden soll
-                FillTboxes(trow.rowIndex-1);  /////////////////////////////////// Übergeben Sie den aktuellen Wert von 'Nummer' als Index
+                FillTboxes(num);
             });
             ControlDiv.appendChild(bearbeitenButton);
 
@@ -394,24 +412,6 @@
                 );
             });
         }
-
-        //-------------Getting all Data ----------->
-        function GetAllDataRealTime(){
-            const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
-
-            onValue(dbRef,(snapshot)=>{
-                var teilnehmer = [];
-                snapshot.forEach(childSnapshot => {
-                    var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
-                    var data = childSnapshot.val();
-                    teilnehmer.push({...data, Nummer: num}); // Die Nummer als Teil der Teilnehmerdaten hinzufügen
-                    console.log("Nummer:", num);
-                });
-                AddAllTeilnehmer(teilnehmer);
-            })
-        }
-
-        window.onload = GetAllDataRealTime;
         
         function Bewerten(nummer){
             window.selectedNummer = nummer;
