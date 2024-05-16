@@ -9,7 +9,6 @@ var pageChangeBtn = document.getElementById("FinalTableBtn");
 pageChangeBtn.addEventListener("click", goToNewPage);
 
 
-
 // Die Funktion zum Wechseln der Seite
 function goBackToPage() {
     window.location.href = "Startseite.html";
@@ -17,18 +16,18 @@ function goBackToPage() {
 var ChangeBackBtn = document.getElementById("backBtn");
 ChangeBackBtn.addEventListener("click", goBackToPage);
 
-
-
 //Zum Regelwerk
 function toRegelwerkPage() {
     var urlParams = new URLSearchParams(window.location.search);
     var tableName = urlParams.get('tableName');
+    var selectedNummer = urlParams.get('tableName');
     if(tableName) {
-        window.location.href = 'Regelwerk.html?source=Tabelle&tableName=' + encodeURIComponent(tableName);
+        window.location.href = 'Regelwerk.html?source=Tabelle&tableName=' + encodeURIComponent(tableName) + encodeURIComponent(selectedNummer);
     } else {
         console.error("tableName ist null");
     }
 }
+
 var ChangeToRegeln = document.getElementById("RegelnBtn");
 if (ChangeToRegeln) {
     ChangeToRegeln.addEventListener("click", toRegelwerkPage);

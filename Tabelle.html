@@ -3,7 +3,7 @@
 <head>
     <meta charset='UTF-8'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabellenzeile hinzufügen</title>
+    <title>Tabellenzeile bearbeiten</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="css/StyleSheet.css" />
 </head>
@@ -12,6 +12,7 @@
     <button id="backBtn">Zurück Starseite</button>
     <button id="printAllBtn">alle Auswertungsbogen ausdrucken</button>
     <button id="FinalTableBtn">Zur Auswertungsliste</button>
+    <button id="RegelnBtn">Regelwerk</button>
 
     <div class="table-container">
         <br>
@@ -23,7 +24,7 @@
                     <th onclick="sortTable(1)">Vorname</th>
                     <th onclick="sortTable(2)">Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
                     <th onclick="sortTable(3)">Geburstdatum</th>
-                    <th onclick="sortTable(4)">Alter<button>!</button></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
+                    <th onclick="sortTable(4)">Alter<!--<button>!</button>--></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
                     <th onclick="sortTable(5)">Nationalität</th>
                     <th onclick="sortTable(6)">Verein</th>
                     <th onclick="sortTable(7)">Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
@@ -217,7 +218,14 @@
         });
         }
         AddBtn.addEventListener('click', AddData);
-
+        // Hinzufügen von Teilnehmern mit Enter-Taste
+        document.addEventListener('keydown', function(event) {
+            // Prüfen, ob Enter gedrückt wird und ob das Modal nicht sichtbar ist
+            if (event.key === 'Enter' && !$('#exampleModalCenter').hasClass('show')) {
+                event.preventDefault(); // Verhindert das Standardverhalten der Enter-Taste
+                AddData();
+            }
+        });
 
     //-------- Filling Tabelle -------->
         //var Nummer = 0;
@@ -250,8 +258,16 @@
             td6.innerHTML = nation;
             td7.innerHTML = verein;
             td8.innerHTML = rank;
-            ratingButton.innerHTML = '<button type="button" class="btn btn-primary" data-toggle="modal" data-target="" onclick="FillTboxes(null)">Bewerten</button>'
-            //ControlDiv.innerHTML = '<button id="bearbeiten-button-id" type="button" class="btn btn-primary my-2 ml-2" data-toggle="modal" data-target="#exampleModalCenter">Bearbeiten</button>'
+            
+            var ratingButton = document.createElement("button");
+            ratingButton.type = "button";
+            ratingButton.className = "btn btn-primary";
+            ratingButton.dataset.toggle = "modal";
+            ratingButton.innerText = "Bearbeiten";
+            ratingButton.addEventListener('click', function() {
+                // Hier den Index der Zeile übergeben, die bearbeitet werden soll
+                Bewerten(trow.rowIndex-1);  /////////////////////////////////// Übergeben Sie den aktuellen Wert von 'Nummer' als Index
+            });
 
             var bearbeitenButton = document.createElement("button");
             bearbeitenButton.type = "button";
@@ -280,6 +296,7 @@
             
         }
 
+
         var NameMod = document.getElementById('NameMod');
         var VornameMod = document.getElementById('VornameMod');
         var SexMod = document.getElementById('SexMod');
@@ -296,33 +313,67 @@
 
         
         // Funktion zum Füllen des Modal mit den Daten des ausgewählten Teilnehmers
-        function FillTboxes(index){
-            console.log("Index:", index);
+        // Funktion zum Füllen des Modal mit den Daten des ausgewählten Teilnehmers
+        function FillTboxes(nummer) {
+            const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + nummer);
+            get(teilnehmerRef).then((snapshot) => {
+                var teilnehmer = snapshot.val();
+                if (teilnehmer) {
+                    document.getElementById("NameMod").value = teilnehmer.Name;
+                    document.getElementById("VornameMod").value = teilnehmer.Vorname;
+                    document.getElementById("SexMod").value = teilnehmer.Geschlecht;
+                    document.getElementById("DataMod").value = teilnehmer.Geburstdatum;
+                    document.getElementById("AgeMod").value = teilnehmer.Alter;
+                    document.getElementById("NationMod").value = teilnehmer.Nationalität;
+                    document.getElementById("VereinMod").value = teilnehmer.Verein;
+                    document.getElementById("RankMod").value = teilnehmer.Graduierung;
 
-            if(index==null){
-                NameMod.value = "";
-                VornameMod.value = ""; 
-                SexMod.value = "";
-                DataMod.value = "";
-                AgeMod.value = "";
-                NationMod.value = "";
-                VereinMod.value = "";
-                RankMod.value = "";
-                selectedNummer = null;
-            } else {
-                //--index;
-                NameMod.value = teilnehmerList[index][0];
-                VornameMod.value = teilnehmerList[index][1]; 
-                SexMod.value = teilnehmerList[index][2];
-                DataMod.value = teilnehmerList[index][3];
-                AgeMod.value = teilnehmerList[index][4];
-                NationMod.value = teilnehmerList[index][5];
-                VereinMod.value = teilnehmerList[index][6];
-                RankMod.value = teilnehmerList[index][7];
-                selectedNummer = teilnehmerList[index][8];
-            }
-            console.log("Nummer:", selectedNummer);
+                    // Set the selectedNummer globally
+                    window.selectedNummer = nummer;
+                }
+            });
+            console.log("Nummer: " + nummer);
         }
+
+        document.getElementById("UpdModBtn").addEventListener("click", UpdateTeilnehmer);
+        // Event-Listener für das Drücken der Enter-Taste im Modal
+        document.getElementById('exampleModalCenter').addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Verhindert das Standardverhalten der Enter-Taste
+                UpdateTeilnehmer();
+            }
+        });
+
+        function UpdateTeilnehmer() {
+            var Nummer = window.selectedNummer;
+            console.log("Nummer: " + Nummer);
+            var teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + Nummer);
+            var updatedTeilnehmerData = {
+                Name: document.getElementById("NameMod").value,
+                Vorname: document.getElementById("VornameMod").value,
+                Geschlecht: document.getElementById("SexMod").value,
+                Geburstdatum: document.getElementById("DataMod").value,
+                Alter: document.getElementById("AgeMod").value,
+                Nationalität: document.getElementById("NationMod").value,
+                Verein: document.getElementById("VereinMod").value,
+                Graduierung: document.getElementById("RankMod").value
+            };
+            update(teilnehmerRef, updatedTeilnehmerData);
+            window.location.reload(); // Seite neu laden, um die Änderungen anzuzeigen
+        }
+
+        document.getElementById("DeleteModBtn").addEventListener("click", DeleteTeilnehmer);
+    
+
+        function DeleteTeilnehmer() {
+            var Nummer = window.selectedNummer;
+            console.log("Nummer: " + Nummer);
+            var teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + Nummer);
+            remove(teilnehmerRef);
+            window.location.reload(); // Seite neu laden, um die Änderungen anzuzeigen
+        }
+
+
 
         function AddAllTeilnehmer(Teilnehmer) {
             Nummer = 0;
@@ -343,56 +394,6 @@
                 );
             });
         }
-        
-        function UpdTeilnehmer(){
-            console.log("Nummer:", selectedNummer);
-            if (selectedNummer !== null) {
-                update(ref(db, "Tabellen/" + tableName + "/Teilnehmer/" + selectedNummer), {
-                    Name: NameMod.value,
-                    Vorname: VornameMod.value,
-                    Geburstdatum: DataMod.value,
-                    Alter: Number(AgeMod.value),
-                    Graduierung: RankMod.value,
-                    Geschlecht: SexMod.value,
-                    Nationalität: NationMod.value,
-                    Verein: VereinMod.value,
-                })
-                .then(() => {
-                    alert("Teilnehmer bearbeitet!");
-                    GetAllDataRealTime();
-                    $("#exampleModalCenter").modal('hide');
-                })
-                .catch((error) => {
-                    alert("Ein Problem beim Bearbeiten ist aufgetreten");
-                    console.error(error);
-                });
-            } else {
-                alert("Kein Teilnehmer zum Bearbeiten ausgewählt");
-            }
-        }
-        // Event-Listener für die Schaltfläche "Speichern" hinzufügen
-        BTNmodUpd.addEventListener('click', UpdTeilnehmer);
-
-
-        function DelTeilnehmer(){
-            console.log("Nummer:", selectedNummer);
-            if (selectedNummer !== null) {
-                remove(ref(db, "Tabellen/" + tableName + "/Teilnehmer/" + selectedNummer))
-                .then(() => {
-                    alert("Teilnehmer gelöscht!");
-                    GetAllDataRealTime();
-                    $("#exampleModalCenter").modal('hide');
-                })
-                .catch((error) => {
-                    alert("Fehler beim Löschen des Teilnehmers");
-                    console.error(error);
-                });
-            } else {
-                alert("Kein Teilnehmer zum Löschen ausgewählt");
-            }
-        }
-        // Event-Listener für die Schaltfläche "Löschen" hinzufügen
-        BTNmodDel.addEventListener('click', DelTeilnehmer);
 
         //-------------Getting all Data ----------->
         function GetAllDataRealTime(){
@@ -412,7 +413,22 @@
 
         window.onload = GetAllDataRealTime;
         
+        function Bewerten(nummer){
+            window.selectedNummer = nummer;
+            var Nummer = window.selectedNummer;
+            // Ereignislistener für den "Auswählen" Button hinzufügen
+            var auswahlButton = ControlDiv.querySelector('.auswählen-button');
+            auswahlButton.addEventListener('click', function() {
+                // Übergeben Sie den tableName in der URL beim Weiterleiten zur "Tabellen.html" Seite
+                window.location.href = 'Bewertung.html?tableName?Teilnehmer?Nummer=' + encodeURIComponent(tableName) + encodeURIComponent(selectedNummer);
+            });
+        }
+    
+        
+
     //-------- FullName merken und vorschlagen-------->
+
+    //--------Sortieren der Tabelle-------->
     </script>
 </body>
 </html>

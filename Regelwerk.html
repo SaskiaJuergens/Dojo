@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regelwerk</title>
+    <style>
+        /* Sie können die Größe des iframes nach Bedarf anpassen */
+        .pdf-iframe {
+            width: 100%;
+            height: 100vh; /* Höhe auf die volle Ansichtshöhe setzen */
+            border: none; /* Rand entfernen */
+        }
+    </style>
+</head>
+
+<body>
+    <button id="backBtn">Zurück</button>
+
+    <h1>Regelwerk</h1>
+    <!-- Einbetten des PDF-Dokuments -->
+    <iframe class="pdf-iframe" src="firstWebsiteTry/unterlagen/Meisterschatsregeln Neu ab  01-2023.pdf"></iframe>
+    <!-- Alternativ, falls das PDF im gleichen Verzeichnis liegt -->
+    <!-- <iframe class="pdf-iframe" src="document.pdf"></iframe> -->
+
+    <script>
+        // Extrahiere den tableName aus der URL Tabelle & Bewertung
+        var urlParams = new URLSearchParams(window.location.search);
+        var tableName = urlParams.get('tableName');
+        // Verwende den tableName auf der Seite
+        console.log('TableName:', tableName);
+        // Extrahiere den selkectedNummer aus der URL Bewertung
+        var selectedNummer = urlParams.get('selectedNummer');
+        // Verwende den tableName auf der Seite
+        console.log('selectedNummer:', selectedNummer);
+
+
+        // Die Funktion zum Wechseln der Seite
+        // Die Funktion zum Wechseln der Seite
+        function goBackToPage() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var source = urlParams.get('source');
+
+            if (source === "Bewertung") {
+                window.location.href = 'Bewertung.html?bewertung=' + encodeURIComponent(tableName) + encodeURIComponent(selectedNummer);
+            } else if (source === "Tabelle") {
+                var tableName = urlParams.get('tableName');
+                window.location.href = 'Tabelle.html?tableName=' + encodeURIComponent(tableName);
+            } else {
+                console.error("Unknown source:", source);
+            }
+        }
+
+
+
+        // Event-Listener zum Zurück-Button hinzufügen
+        var ChangeBackBtn = document.getElementById("backBtn");
+        if (ChangeBackBtn) { // Sicherstellen, dass der Button existiert
+            ChangeBackBtn.addEventListener("click", goBackToPage);
+        } else {
+            console.error("Button nicht gefunden!"); // Falls der Button nicht gefunden wird
+        }
+
+    </script>
+</body>
+</html>
