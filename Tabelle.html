@@ -245,8 +245,43 @@
                     Nationalität: Nation.value,
                     Verein: Verein.value,
                     Schnellbogenschießen: {
-                    Platzierung: 0,
-                    Sekunden: 0
+                        Platzierung: 0,
+                        Sekunden: {  
+                            zehnM: {
+                                Sek: 0,
+                                Matoauge: 0, //+
+                                Restmato: 0,
+                                Fehler: 0,
+                                Strafe: 0,
+                                Ständer: 0,
+                                Zeitstarfe: 0,
+                                Rundenzeit: 0                
+                            },  
+                            zwanzigM: {
+                                Sek: 0,
+                                Matoauge: 0, //+
+                                Restmato: 0,
+                                Fehler: 0,
+                                Strafe: 0,
+                                Ständer: 0,
+                                Zeitstarfe: 0,
+                                Rundenzeit: 0                
+                            },
+                            dreizigM: {
+                                Sek: 0,
+                                Matoauge: 0, //+
+                                Restmato: 0,
+                                Fehler: 0,
+                                Strafe: 0,
+                                Ständer: 0,
+                                Zeitstarfe: 0,
+                                Rundenzeit: 0                
+                            },
+                            total: {
+                                Strafzeit: 0,
+                                Sek: 0
+                            } 
+                        }
                     },
                     Präzisionschießen: {
                         Pkt: 0,
@@ -494,38 +529,44 @@
                 modalTableBody.innerHTML = ''; // Zur Sicherheit leeren wir den Inhalt zuerst
 
                 // Daten für verschiedene Entfernungen holen und in die Tabelle einfügen
-                ['10m', '20m', '30m'].forEach((entfernung) => {
-                    var tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${entfernung}</td>
-                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}Strafe`]}</td>
-                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}MA`]}</td>
-                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}RM`]}</td>
-                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}Fehl-B`]}</td>
-                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}Straf-B`]}</td>
-                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}in Ständer`]}</td>
-                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}`]}</td>
-                    `;
-                    modalTableBody.appendChild(tr);
-                });
+            ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
+                var tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${entfernung}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Sek}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Matoauge}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Restmato}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Fehler}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Strafe}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Ständer}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Zeitstarfe}</td>
+                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Rundenzeit}</td>
+                `;
+                modalTableBody.appendChild(tr);
+            });
 
-                // Berechnung der Gesamtzeitstrafe und Gesamtzeit
-                var totalTimePenalty = schnellbogenschiessen.Sekunden['10Strafe'] + schnellbogenschiessen.Sekunden['20Strafe'] + schnellbogenschiessen.Sekunden['30Strafe'];
-                var totalTime = schnellbogenschiessen.Sekunden['Total'];
+            // Berechnung der Gesamtzeitstrafe und Gesamtzeit
+            var totalTimePenalty = schnellbogenschiessen.total.Strafzeit;
+            var totalTime = schnellbogenschiessen.total.Sek;
 
-                // Aktualisieren der Fußzeile der Tabelle
-                document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
-                document.getElementById('totalTime').textContent = totalTime;
+            // Berechnung der Gesamtzeitstrafe und Gesamtzeit
+            var totalTimePenalty = schnellbogenschiessen.Sekunden['10Strafe'] + schnellbogenschiessen.Sekunden['20Strafe'] + schnellbogenschiessen.Sekunden['30Strafe'];
+            var totalTime = schnellbogenschiessen.Sekunden['Total'];
 
-                // Modal öffnen
-                $('#exampleModalTable').modal('show');
+            // Aktualisieren der Fußzeile der Tabelle
+            document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
+            document.getElementById('totalTime').textContent = totalTime;
 
-                // Set the selectedNummer globally
-                window.selectedNummer = teilnehmerNummer;
-            }
-        });
-        console.log("Bewertung-TeilNr: " + teilnehmerNummer);
-    }
+            // Modal öffnen
+            $('#exampleModalTable').modal('show');
+
+            // Set the selectedNummer globally
+            window.selectedNummer = teilnehmerNummer;
+        }
+    }).catch((error) => {
+        console.error("Error getting document:", error);
+    });
+}
 
         //--------Sortieren der Tabelle-------->
     </script>
