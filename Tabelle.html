@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tabellenzeile bearbeiten</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="css/StyleSheet.css" />
+    <link rel="stylesheet" href="css/StyleSheet1.css" />
 </head>
 
 <body>
@@ -115,6 +115,59 @@
         </div>
     </div>
     <!-- Modal Ende -->
+
+    <!-- Modal Bewertung Start -->
+    <div class="modal fade" id="exampleModalTable" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLongTitle">Schnellschießen Bewertung</h5>
+                    <p><input placeholder="FullName" type="text" id="fullname" /></p>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th rowspan="2">Entf.</th>
+                                    <th rowspan="2">Zeit (in sek.)</th>
+                                    <th colspan="5">Pfeile im:</th>
+                                    <!-- Weitere Spalten für verschiedene Abstände -->
+                                    <th rowspan="2">Zeitstrafe</th>
+                                    <th rowspan="2">Rundenzeit (in Sek.)</th>
+                                </tr>
+                                <tr> 
+                                    <th>MA</th>
+                                    <th>RM</th>
+                                    <th>Fehl.-B.</th>
+                                    <th>Straf.-B./in Hand</th>
+                                    <th>in Ständer</th>
+                            </thead>
+                            <tbody id="modalTableBody">
+                                <!-- Hier werden die Zeilen dynamisch hinzugefügt -->
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="3">Total Zeitstrafe</th>
+                                    <td id="totalTimePenalty">0</td>
+                                    <th colspan="2">Total Zeit</th>
+                                    <td id="totalTime">0</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="saveRatingBtn" type="button" class="btn btn-success">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal Ende -->
+
 
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -282,8 +335,9 @@
 
             var ratingButton = document.createElement("button");
             ratingButton.type = "button";
-            ratingButton.className = "btn btn-primary my-2 ml-2";
+            ratingButton.className = "custom-btn";
             ratingButton.dataset.toggle = "modal";
+            ratingButton.dataset.target = "#exampleModalTable";
             ratingButton.innerText = "Bewerten";
             ratingButton.dataset.teilnehmerNummer = data.Nummer;
             ratingButton.addEventListener('click', function() {
@@ -293,7 +347,7 @@
 
             var bearbeitenButton = document.createElement("button");
             bearbeitenButton.type = "button";
-            bearbeitenButton.className = "btn btn-primary my-2 ml-2";
+            bearbeitenButton.className = "custom-btn";
             bearbeitenButton.dataset.toggle = "modal";
             bearbeitenButton.dataset.target = "#exampleModalCenter";
             bearbeitenButton.innerText = "Bearbeiten";
@@ -320,8 +374,6 @@
             tbody.appendChild(trow);
         }
 
-
-
         var NameMod = document.getElementById('NameMod');
         var VornameMod = document.getElementById('VornameMod');
         var SexMod = document.getElementById('SexMod');
@@ -336,8 +388,7 @@
 
         var selectedNummer = null;
 
-        
-        // Funktion zum Füllen des Modal mit den Daten des ausgewählten Teilnehmers
+
         // Funktion zum Füllen des Modal mit den Daten des ausgewählten Teilnehmers
         function FillTboxes(nummer) {
             const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + nummer);
@@ -368,6 +419,7 @@
                 UpdateTeilnehmer();
             }
         });
+
 
         function UpdateTeilnehmer() {
             var Nummer = window.selectedNummer;
@@ -421,23 +473,61 @@
             });
         }
         
-        function Bewerten(nummer){
-            console.log("BwertenNummer: " + nummer);
-            window.selectedNummer = nummer;
-            var Nummer = window.selectedNummer;
-            // Ereignislistener für den "Auswählen" Button hinzufügen
-            var auswahlButton = ControlDiv.querySelector('.auswählen-button');
-            auswahlButton.addEventListener('click', function() {
-                // Übergeben Sie den tableName in der URL beim Weiterleiten zur "Tabellen.html" Seite
-                window.location.href = 'Bewertung.html?tableName?Teilnehmer?Nummer=' + encodeURIComponent(tableName) + encodeURIComponent(selectedNummer);
-            });
-        }
-    
-        
 
-    //-------- FullName merken und vorschlagen-------->
+    ///////////////////////////////////////////////////// JavaScript Code für die Bewertungsfunktion
+    // Funktion, um das Modal für die Bewertung zu öffnen
+    function Bewerten(teilnehmerNummer) {
+        // Laden der Daten und Befüllen der Bewertungstabelle
+        const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + teilnehmerNummer);
+        get(teilnehmerRef).then((snapshot) => {
+            var teilnehmer = snapshot.val();
+            if (teilnehmer) {
+                document.getElementById("fullname").value = teilnehmer.Vorname + ' ' + teilnehmer.Name; 
+                // Zugriff auf die Schnellschießen-Daten
+                var schnellbogenschiessen = teilnehmer.Schnellbogenschießen;
 
-    //--------Sortieren der Tabelle-------->
+                // Zugriff auf die Platzierung
+                var platzierung = teilnehmer.Platzierung;
+
+                // Tabelle dynamisch füllen
+                var modalTableBody = document.getElementById('modalTableBody');
+                modalTableBody.innerHTML = ''; // Zur Sicherheit leeren wir den Inhalt zuerst
+
+                // Daten für verschiedene Entfernungen holen und in die Tabelle einfügen
+                ['10m', '20m', '30m'].forEach((entfernung) => {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${entfernung}</td>
+                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}Strafe`]}</td>
+                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}MA`]}</td>
+                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}RM`]}</td>
+                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}Fehl-B`]}</td>
+                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}Straf-B`]}</td>
+                        <td>${schnellbogenschiessen.Platzierung[`${entfernung}in Ständer`]}</td>
+                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}`]}</td>
+                    `;
+                    modalTableBody.appendChild(tr);
+                });
+
+                // Berechnung der Gesamtzeitstrafe und Gesamtzeit
+                var totalTimePenalty = schnellbogenschiessen.Sekunden['10Strafe'] + schnellbogenschiessen.Sekunden['20Strafe'] + schnellbogenschiessen.Sekunden['30Strafe'];
+                var totalTime = schnellbogenschiessen.Sekunden['Total'];
+
+                // Aktualisieren der Fußzeile der Tabelle
+                document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
+                document.getElementById('totalTime').textContent = totalTime;
+
+                // Modal öffnen
+                $('#exampleModalTable').modal('show');
+
+                // Set the selectedNummer globally
+                window.selectedNummer = teilnehmerNummer;
+            }
+        });
+        console.log("Bewertung-TeilNr: " + teilnehmerNummer);
+    }
+
+        //--------Sortieren der Tabelle-------->
     </script>
 </body>
 </html>

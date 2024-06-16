@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabellenzeile hinzufügen</title>
+    <link rel="stylesheet" href="css/StyleSheet.css" />
+    
+</head>
+
+<body>
+    <button id="backBtn">Zurück</button>
+
+    <h1>Teilnehmername</h1>
+    <div class="container mt-3">
+        <h1>Tabelle 2024</h1>
+        <table class="table table-dark" id="TeilenhmerTable">
+            <thead>
+                <tr>
+                    <caption>Schnellbogenschießen</caption>
+                    <th>Sekunden</th>
+                    <th>Pkt.</th>
+                    <th>Plazierung</th>
+                </tr>
+            </thead>
+            <tbody id="tbody1">
+                <!-- Placeholder for dynamic data -->
+            </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        //-------------Firebase DB Conection ----------->
+            // Import the functions you need from the SDKs you need
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+    
+            // Your web app's Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyA8AWwq9SWpTjLwxzVaVKuo6HcVdfH5FhU",
+                authDomain: "dojo-website-d7f0c.firebaseapp.com",
+                databaseURL: "https://dojo-website-d7f0c-default-rtdb.europe-west1.firebasedatabase.app",
+                projectId: "dojo-website-d7f0c",
+                storageBucket: "dojo-website-d7f0c.appspot.com",
+                messagingSenderId: "157008216879",
+                appId: "1:157008216879:web:461d14ed280ed2a6ab17da"
+            };
+    
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+    
+            import{getDatabase, ref, get, set, update, remove, onValue, child} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+            const db = getDatabase();     
+    
+    
+    
+            // Extrahiere den tableName aus der URL
+            var urlParams = new URLSearchParams(window.location.search);
+            var tableName = urlParams.get('tableName');
+            // Verwende den tableName auf der Seite
+            console.log('TableName:', tableName);
+    
+    
+    
+            //----------Add Teilnehmer-------->
+            // Hinzufügen und Bearbeiten von Teilnehmern
+            var Nummer = 0;
+            let TeilnehmerListe = [];
+            var tbody = document.getElementById('tbody1');
+    
+            let Fname = document.getElementById('vorname');
+            let Lname = document.getElementById('name');
+            let Datum = document.getElementById('data');
+            let Age = document.getElementById('age');
+            let Rank = document.getElementById('rankID');
+            let Sex = document.getElementById('sexID');
+            let Nation = document.getElementById('nation');
+            let Verein = document.getElementById('verein');
+            
+            let AddBtn = document.getElementById('AddBtn');
+    
+            //-------------Getting all Data ----------->
+            function GetAllDataRealTime() {
+                const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
+    
+                onValue(dbRef, (snapshot) => {
+                    snapshot.forEach(childSnapshot => {
+                        var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
+                        // Hier rufen Sie die Teilnehmerdaten unter Verwendung von num als Schlüssel ab
+                        const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + num);
+                        get(teilnehmerRef).then((snapshot) => {
+                            var data = snapshot.val();
+                            if (data) {
+                                console.log("Data:", data);
+                                data.Nummer = num; // Fügen Sie die Teilnehmernummer zu den Teilnehmerdaten hinzu
+                                console.log("Nummer:", num);
+                                AddTeilnehmer(data);
+                                console.log("Data:", data);
+                            }
+                        });
+                    });
+                })
+            }
+            window.onload = GetAllDataRealTime;
+    
+        //-------- Filling Tabelle -------->
+            //var Nummer = 0;
+            var teilnehmerList = [];
+            var tbody = document.getElementById('tbody1');
+    
+            function AddTeilnehmer(data) {
+                var trow = document.createElement("tr");
+                var td0 = document.createElement("td");
+                var td1 = document.createElement("td");
+                var td2 = document.createElement("td");
+                var td3 = document.createElement("td");
+                var td4 = document.createElement("td");
+                var td5 = document.createElement("td");
+                var td6 = document.createElement("td");
+                var td7 = document.createElement("td");
+                var td8 = document.createElement("td");
+                var ratingButton = document.createElement("td");
+                var ControlDiv = document.createElement("td");
+    
+                td0.innerHTML = data.Nummer; // Hier verwenden wir data.Nummer, um die Teilnehmernummer anzuzeigen
+                td1.innerHTML = data.Name;
+                td2.innerHTML = data.Vorname;
+                td3.innerHTML = data.Geschlecht;
+                td4.innerHTML = data.Geburstdatum;
+                td5.innerHTML = data.Alter;
+                td6.innerHTML = data.Nationalität;
+                td7.innerHTML = data.Verein;
+                td8.innerHTML = data.Graduierung;
+    
+                var ratingButton = document.createElement("button");
+                ratingButton.type = "button";
+                ratingButton.className = "custom-btn";
+                ratingButton.dataset.toggle = "modal";
+                ratingButton.dataset.target = "#exampleModalCenter";
+                ratingButton.innerText = "Bewerten";
+                ratingButton.dataset.teilnehmerNummer = data.Nummer;
+                ratingButton.addEventListener('click', function() {
+                    var teilnehmerNummer = this.dataset.teilnehmerNummer;
+                    Bewerten(teilnehmerNummer)
+                });
+    
+                var bearbeitenButton = document.createElement("button");
+                bearbeitenButton.type = "button";
+                bearbeitenButton.className = "custom-btn";
+                bearbeitenButton.dataset.toggle = "modal";
+                bearbeitenButton.dataset.target = "#exampleModalCenter";
+                bearbeitenButton.innerText = "Bearbeiten";
+                bearbeitenButton.dataset.teilnehmerNummer = data.Nummer;
+                bearbeitenButton.addEventListener('click', function() {
+                    var teilnehmerNummer = this.dataset.teilnehmerNummer;
+                    FillTboxes(teilnehmerNummer);
+                });
+    
+                ControlDiv.appendChild(bearbeitenButton);
+    
+                //trow.appendChild(td0);
+                trow.appendChild(td1);
+                trow.appendChild(td2);
+                trow.appendChild(td3);
+                trow.appendChild(td4);
+                trow.appendChild(td5);
+                trow.appendChild(td6);
+                trow.appendChild(td7);
+                trow.appendChild(td8);
+                trow.appendChild(ratingButton);
+                trow.appendChild(ControlDiv);
+    
+                tbody.appendChild(trow);
+            }
+
+    
+            var NameMod = document.getElementById('NameMod');
+            var VornameMod = document.getElementById('VornameMod');
+            var SexMod = document.getElementById('SexMod');
+            var DataMod = document.getElementById('DataMod');
+            var AgeMod = document.getElementById('AgeMod');
+            var NationMod = document.getElementById('NationMod');
+            var VereinMod = document.getElementById('VereinMod');
+            var RankMod = document.getElementById('RankMod');
+    
+            var BTNmodUpd = document.getElementById('UpdModBtn');
+            var BTNmodDel = document.getElementById('DeleteModBtn');
+    
+            var selectedNummer = null;
+    
+            // Funktion zum Füllen des Modal mit den Daten des ausgewählten Teilnehmers
+            function FillTboxes(nummer) {
+                const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + nummer);
+                get(teilnehmerRef).then((snapshot) => {
+                    var teilnehmer = snapshot.val();
+                    if (teilnehmer) {
+                        document.getElementById("NameMod").value = teilnehmer.Name;
+                        document.getElementById("VornameMod").value = teilnehmer.Vorname;
+                        document.getElementById("SexMod").value = teilnehmer.Geschlecht;
+                        document.getElementById("DataMod").value = teilnehmer.Geburstdatum;
+                        document.getElementById("AgeMod").value = teilnehmer.Alter;
+                        document.getElementById("NationMod").value = teilnehmer.Nationalität;
+                        document.getElementById("VereinMod").value = teilnehmer.Verein;
+                        document.getElementById("RankMod").value = teilnehmer.Graduierung;
+    
+                        // Set the selectedNummer globally
+                        window.selectedNummer = nummer;
+                    }
+                });
+                console.log("Nummer: " + nummer);
+            }
+    
+            document.getElementById("UpdModBtn").addEventListener("click", UpdateTeilnehmer);
+            // Event-Listener für das Drücken der Enter-Taste im Modal
+            document.getElementById('exampleModalCenter').addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault(); // Verhindert das Standardverhalten der Enter-Taste
+                    UpdateTeilnehmer();
+                }
+            });
+    
+            function UpdateTeilnehmer() {
+                var Nummer = window.selectedNummer;
+                console.log("Nummer: " + Nummer);
+                var teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + Nummer);
+                var updatedTeilnehmerData = {
+                    Name: document.getElementById("NameMod").value,
+                    Vorname: document.getElementById("VornameMod").value,
+                    Geschlecht: document.getElementById("SexMod").value,
+                    Geburstdatum: document.getElementById("DataMod").value,
+                    Alter: document.getElementById("AgeMod").value,
+                    Nationalität: document.getElementById("NationMod").value,
+                    Verein: document.getElementById("VereinMod").value,
+                    Graduierung: document.getElementById("RankMod").value
+                };
+                update(teilnehmerRef, updatedTeilnehmerData);
+                window.location.reload(); // Seite neu laden, um die Änderungen anzuzeigen
+            }
+    
+            document.getElementById("DeleteModBtn").addEventListener("click", DeleteTeilnehmer);
+        
+    
+            function DeleteTeilnehmer() {
+                var Nummer = window.selectedNummer;
+                console.log("Nummer: " + Nummer);
+                var teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + Nummer);
+                remove(teilnehmerRef);
+                window.location.reload(); // Seite neu laden, um die Änderungen anzuzeigen
+            }
+    
+    
+    
+            function AddAllTeilnehmer(Teilnehmer) {
+                Nummer = 0;
+                tbody.innerHTML = "";
+                Teilnehmer.forEach(element => {
+                    
+                    AddTeilnehmer(
+                        element.Name,
+                        element.Vorname,
+                        element.Geburstdatum,
+                        element.Alter,
+                        element.Graduierung,
+                        element.Geschlecht,
+                        element.Nationalität,
+                        element.Verein,
+                        element.Schnellbogenschießen.Platzierung,
+                        element.Schnellbogenschießen.Sekunden,
+                        element.Nummer
+                    );
+                });
+            }
+            
+            function Bewerten(nummer){
+                console.log("BwertenNummer: " + nummer);
+                window.selectedNummer = nummer;
+                var Nummer = window.selectedNummer;
+                // Ereignislistener für den "Auswählen" Button hinzufügen
+                var auswahlButton = ControlDiv.querySelector('.auswählen-button');
+                auswahlButton.addEventListener('click', function() {
+                    // Übergeben Sie den tableName in der URL beim Weiterleiten zur "Tabellen.html" Seite
+                    window.location.href = 'Bewertung.html?tableName?Teilnehmer?Nummer=' + encodeURIComponent(tableName) + encodeURIComponent(selectedNummer);
+                });
+            }
+        
+            
+    
+        //-------- FullName merken und vorschlagen-------->
+    
+        //--------Sortieren der Tabelle-------->
+        </script>
+
+</body>
+</html>
