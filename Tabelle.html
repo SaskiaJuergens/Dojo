@@ -510,6 +510,11 @@
         
 
     ///////////////////////////////////////////////////// JavaScript Code für die Bewertungsfunktion
+    // Event Listener für Speichern-Button
+    document.getElementById('saveRatingBtn').addEventListener('click', function() {
+        saveDataToFirebase();
+    });
+
     // Funktion, um das Modal für die Bewertung zu öffnen
     function Bewerten(teilnehmerNummer) {
         // Laden der Daten und Befüllen der Bewertungstabelle
@@ -529,44 +534,77 @@
                 modalTableBody.innerHTML = ''; // Zur Sicherheit leeren wir den Inhalt zuerst
 
                 // Daten für verschiedene Entfernungen holen und in die Tabelle einfügen
-            ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
-                var tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${entfernung}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Sek}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Matoauge}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Restmato}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Fehler}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Strafe}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Ständer}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Zeitstarfe}</td>
-                    <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Rundenzeit}</td>
-                `;
-                modalTableBody.appendChild(tr);
-            });
+                ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${entfernung}</td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Sek}" name="${entfernung}-sek"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Matoauge}" name="${entfernung}-mae"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Restmato}" name="${entfernung}-rm"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Fehler}" name="${entfernung}-fehler"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Strafe}" name="${entfernung}-strafe"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Ständer}" name="${entfernung}-ständer"></td>
+                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Zeitstarfe}</td>
+                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Rundenzeit}</td>
+                    `;
+                    modalTableBody.appendChild(tr);
+                });
 
-            // Berechnung der Gesamtzeitstrafe und Gesamtzeit
-            var totalTimePenalty = schnellbogenschiessen.total.Strafzeit;
-            var totalTime = schnellbogenschiessen.total.Sek;
+                // Berechnung der Gesamtzeitstrafe und Gesamtzeit
+                var totalTimePenalty = 77;
+                var totalTime = schnellbogenschiessen.Sekunden.zehnM.Sek + schnellbogenschiessen.Sekunden.zwanzigM.Sek + schnellbogenschiessen.Sekunden.dreizigM.Sek;
 
-            // Berechnung der Gesamtzeitstrafe und Gesamtzeit
-            var totalTimePenalty = schnellbogenschiessen.Sekunden['10Strafe'] + schnellbogenschiessen.Sekunden['20Strafe'] + schnellbogenschiessen.Sekunden['30Strafe'];
-            var totalTime = schnellbogenschiessen.Sekunden['Total'];
+                // Aktualisieren der Fußzeile der Tabelle
+                document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
+                document.getElementById('totalTime').textContent = totalTime;
 
-            // Aktualisieren der Fußzeile der Tabelle
-            document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
-            document.getElementById('totalTime').textContent = totalTime;
+                // Modal öffnen
+                $('#exampleModalTable').modal('show');
 
-            // Modal öffnen
-            $('#exampleModalTable').modal('show');
+                // Set the selectedNummer globally
+                window.selectedNummer = teilnehmerNummer;
+            }
+        }).catch((error) => {
+            console.error("Error getting document:", error);
+        });
+    }
 
-            // Set the selectedNummer globally
-            window.selectedNummer = teilnehmerNummer;
-        }
-    }).catch((error) => {
-        console.error("Error getting document:", error);
-    });
-}
+        // Funktion zum Speichern der geänderten Daten in Firebase
+            function saveDataToFirebase() {
+                var teilnehmerNummer = window.selectedNummer;
+                const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + teilnehmerNummer);
+
+                // Daten aus den Input-Feldern lesen und vorbereiten
+                var dataToUpdate = {};
+                ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
+                    var sekValue = parseFloat(document.querySelector(`input[name="${entfernung}-sek"]`).value);
+                    var matoaugeValue = parseFloat(document.querySelector(`input[name="${entfernung}-ma"]`).value);
+                    var rmValue = parseFloat(document.querySelector(`input[name="${entfernung}-rm"]`).value);
+                    var fehlerValue = parseFloat(document.querySelector(`input[name="${entfernung}-fehler"]`).value);
+                    var strafeValue = parseFloat(document.querySelector(`input[name="${entfernung}-strafe"]`).value);
+                    var ständerValue = parseFloat(document.querySelector(`input[name="${entfernung}-ständer"]`).value);
+
+                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Sek`] = isNaN(sekValue) ? 0 : sekValue;
+                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Matoauge`] = isNaN(matoaugeValue) ? 0 : matoaugeValue;
+                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Restmato`] = isNaN(rmValue) ? 0 : rmValue;
+                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Fehler`] = isNaN(fehlerValue) ? 0 : fehlerValue;
+                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Strafe`] = isNaN(strafeValue) ? 0 : strafeValue;
+                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Ständer`] = isNaN(ständerValue) ? 0 : ständerValue;
+                });
+
+                console.log("Daten zum Aktualisieren:", dataToUpdate); // Konsolenausgabe zur Überprüfung der Daten
+
+                // Update in Firebase durchführen
+                update(teilnehmerRef, dataToUpdate)
+                    .then(() => {
+                        alert("Daten erfolgreich aktualisiert");
+                    })
+                    .catch((error) => {
+                        alert("Fehler beim Speichern der Daten");
+                        console.error("Error updating document:", error);
+                    });
+            }
+
 
         //--------Sortieren der Tabelle-------->
     </script>

@@ -131,3 +131,11 @@ button:hover {
 .custom-btn:hover {
     background-color: #8b0000;
 }
+
+.modal-xl {
+    max-width: 1500px; /* Modal Table breite */
+}
+
+#exampleModalTable .custom-input {
+    width: 150px; /* Passen Sie die Breite nach Bedarf an */
+}
