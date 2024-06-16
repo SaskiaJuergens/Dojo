@@ -536,10 +536,25 @@
                 // Daten für verschiedene Entfernungen holen und in die Tabelle einfügen
                 ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
                     var tr = document.createElement('tr');
+
+                    // // Lesen der Input-Feld-Werte
+                    // var sekValue = parseFloat(document.querySelector(`input[name="${entfernung}-sek"]`).value);
+                    // var matoaugeValue = parseFloat(document.querySelector(`input[name="${entfernung}-mae"]`).value);
+                    // var rmValue = parseFloat(document.querySelector(`input[name="${entfernung}-rm"]`).value);
+                    // var fehlerValue = parseFloat(document.querySelector(`input[name="${entfernung}-fehler"]`).value);
+                    // var strafeValue = parseFloat(document.querySelector(`input[name="${entfernung}-strafe"]`).value);
+                    // var ständerValue = parseFloat(document.querySelector(`input[name="${entfernung}-ständer"]`).value);
+
+                    // // Berechnung der Zeitstrafe (falls benötigt)
+                    // var zeitstarfe = schnellbogenschiessen.Sekunden[`${entfernung}M`].Zeitstarfe; // Hier berechnen, falls notwendig
+
+                    // // Berechnung der Rundenzeit
+                    // var rundenzeit = sekValue - matoaugeValue * 3 - rmValue + fehlerValue * 5 + strafeValue * 10 + ständerValue * 20;
+
                     tr.innerHTML = `
                         <td>${entfernung}</td>
                         <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Sek}" name="${entfernung}-sek"></td>
-                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Matoauge}" name="${entfernung}-mae"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Matoauge}" name="${entfernung}-ma"></td>
                         <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Restmato}" name="${entfernung}-rm"></td>
                         <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Fehler}" name="${entfernung}-fehler"></td>
                         <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Strafe}" name="${entfernung}-strafe"></td>
@@ -551,8 +566,8 @@
                 });
 
                 // Berechnung der Gesamtzeitstrafe und Gesamtzeit
-                var totalTimePenalty = 77;
-                var totalTime = schnellbogenschiessen.Sekunden.zehnM.Sek + schnellbogenschiessen.Sekunden.zwanzigM.Sek + schnellbogenschiessen.Sekunden.dreizigM.Sek;
+                var totalTimePenalty = 77; //if Graduierung{ if(sek>max){ Sek-max=Strafzeit   }    } 
+                var totalTime = schnellbogenschiessen.Sekunden.zehnM.Sek /*Rundenzeit*/ + schnellbogenschiessen.Sekunden.zwanzigM.Sek + schnellbogenschiessen.Sekunden.dreizigM.Sek; //-Ma*3  - RM + fehler*5 + strafe*10 + ständer*20
 
                 // Aktualisieren der Fußzeile der Tabelle
                 document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
