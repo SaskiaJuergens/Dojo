@@ -16,7 +16,7 @@
 
     <div class="table-container">
         <br>
-        <h1>Probe Tabelle</h1>
+        <h1 class="Table-title" id="tabletitle"></h1>
         <table class="table" id="TeilenhmerTable">
             <thead>
                 <tr>
@@ -56,11 +56,13 @@
                     <td> <input placeholder="Nationalität" type="text" id="nation" /> </td>
                     <td> <input placeholder="Verein" type="text" id="verein" /> </td>
                     <td>    <select id="rankID" aria-label="Graduierung">
-                        <option value="Mokuroku">Mokuroku</option>
-                        <option value="Shoden">Shoden</option>
-                        <option value="Chuden">Chuden</option>
-                        <option value="Okuden">Okuden</option>
-                        <option value="Menkyo">Menkyo</option>
+                        <option value="6.Kyu (weiß)">6.Kyu (weiß)</option>
+                        <option value="5.Kyu (gelb)">5.Kyu (gelb)</option>
+                        <option value="4.Kyu (orange)">4.Kyu (orange)</option>
+                        <option value="3.Kyu (grün)">3.Kyu (grün)</option>
+                        <option value="2.Kyu (blau)">2.Kyu (blau)</option>
+                        <option value="1.Kyu (braun)">1.Kyu (braun)</option>
+                        <option value="Dan">Dan</option>
                     </select> </td>
                     <td></td>
                     <td><button id="AddBtn">Hinzufügen</button>
@@ -101,11 +103,14 @@
                 <input type="text" id="VereinMod"/> <br>
                 <label class="labs"> Graduierung: </label>
                 <select id="RankMod" aria-label="Graduierungt">
-                <option value="Mokuroku">Mokuroku</option>
-                <option value="Shoden">Shoden</option>
-                <option value="Chuden">Chuden</option>
-                <option value="Okuden">Okuden</option>
-                <option value="Menkyo">Menkyo</option></select>
+                    <option value="6.Kyu (weiß)">6.Kyu (weiß)</option>
+                    <option value="5.Kyu (gelb)">5.Kyu (gelb)</option>
+                    <option value="4.Kyu (orange)">4.Kyu (orange)</option>
+                    <option value="3.Kyu (grün)">3.Kyu (grün)</option>
+                    <option value="2.Kyu (blau)">2.Kyu (blau)</option>
+                    <option value="1.Kyu (braun)">1.Kyu (braun)</option>
+                    <option value="Dan">Dan</option>
+                </select>
             </div>
             <div class="modal-footer">
                 <button id="UpdModBtn" type="button" class="btn btn-success" data-dismiss="modal">Speichern</button>
@@ -121,7 +126,7 @@
         <div class="modal-dialog modal-dialog-centered modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLongTitle">Schnellschießen Bewertung</h5>
+                    <h5 class="modal-title" id="exampleModalLongTitle">Schnellschießen Bewertung  </h5>
                     <p><input placeholder="FullName" type="text" id="fullname" /></p>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -206,6 +211,9 @@
         // Verwende den tableName auf der Seite
         console.log('TableName:', tableName);
 
+        document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('tabletitle').innerText = tableName;
+        });
 
 
         //----------Add Teilnehmer-------->
@@ -338,6 +346,38 @@
             })
         }
         window.onload = GetAllDataRealTime;
+
+        // Sortierfunktion
+        let sortOrder = {};
+        function sortTable(n) {
+            const table = document.getElementById("TeilnehmerTable");
+            const rows = Array.from(table.rows).slice(1); // exclude header row
+            const header = table.rows[0].cells[n].innerText;
+
+            if (sortOrder[header] === undefined) {
+                sortOrder[header] = true;
+            } else {
+                sortOrder[header] = !sortOrder[header];
+            }
+
+            rows.sort((a, b) => {
+                const aText = a.cells[n].innerText.toLowerCase();
+                const bText = b.cells[n].innerText.toLowerCase();
+
+                if (sortOrder[header]) {
+                    return aText > bText ? 1 : -1;
+                } else {
+                    return aText < bText ? 1 : -1;
+                }
+            });
+
+            // Leeren Sie die Tabelle
+            table.tBodies[0].innerHTML = "";
+
+            // Neue sortierte Reihenfolge einfügen
+            rows.forEach(row => table.tBodies[0].appendChild(row));
+        }
+
 
     //-------- Filling Tabelle -------->
         //var Nummer = 0;
@@ -511,9 +551,6 @@
 
     ///////////////////////////////////////////////////// JavaScript Code für die Bewertungsfunktion
     // Event Listener für Speichern-Button
-    document.getElementById('saveRatingBtn').addEventListener('click', function() {
-        saveDataToFirebase();
-    });
 
     // Funktion, um das Modal für die Bewertung zu öffnen
     function Bewerten(teilnehmerNummer) {
@@ -525,7 +562,8 @@
                 document.getElementById("fullname").value = teilnehmer.Vorname + ' ' + teilnehmer.Name; 
                 // Zugriff auf die Schnellschießen-Daten
                 var schnellbogenschiessen = teilnehmer.Schnellbogenschießen;
-
+                var graduierung = teilnehmer.Graduierung;
+                console.log(graduierung); 
                 // Zugriff auf die Platzierung
                 var platzierung = teilnehmer.Platzierung;
 
@@ -533,92 +571,127 @@
                 var modalTableBody = document.getElementById('modalTableBody');
                 modalTableBody.innerHTML = ''; // Zur Sicherheit leeren wir den Inhalt zuerst
 
+                var totalTimePenalty = 0;
+                var totalTime = 0;
+
                 // Daten für verschiedene Entfernungen holen und in die Tabelle einfügen
                 ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
                     var tr = document.createElement('tr');
 
-                    // // Lesen der Input-Feld-Werte
-                    // var sekValue = parseFloat(document.querySelector(`input[name="${entfernung}-sek"]`).value);
-                    // var matoaugeValue = parseFloat(document.querySelector(`input[name="${entfernung}-mae"]`).value);
-                    // var rmValue = parseFloat(document.querySelector(`input[name="${entfernung}-rm"]`).value);
-                    // var fehlerValue = parseFloat(document.querySelector(`input[name="${entfernung}-fehler"]`).value);
-                    // var strafeValue = parseFloat(document.querySelector(`input[name="${entfernung}-strafe"]`).value);
-                    // var ständerValue = parseFloat(document.querySelector(`input[name="${entfernung}-ständer"]`).value);
+                var sekValue = schnellbogenschiessen.Sekunden[`${entfernung}M`].Sek;
+                var matoaugeValue = schnellbogenschiessen.Sekunden[`${entfernung}M`].Matoauge;
+                var rmValue = schnellbogenschiessen.Sekunden[`${entfernung}M`].Restmato;
+                var fehlerValue = schnellbogenschiessen.Sekunden[`${entfernung}M`].Fehler;
+                var strafeValue = schnellbogenschiessen.Sekunden[`${entfernung}M`].Strafe;
+                var ständerValue = schnellbogenschiessen.Sekunden[`${entfernung}M`].Ständer;
 
-                    // // Berechnung der Zeitstrafe (falls benötigt)
-                    // var zeitstarfe = schnellbogenschiessen.Sekunden[`${entfernung}M`].Zeitstarfe; // Hier berechnen, falls notwendig
+                // Berechnung der Zeitstrafe
+                var zeitstrafe = fehlerValue * 5 + strafeValue * 10 + ständerValue * 20;
+                // Berechnung der Rundenzeit
+                var rundenzeit = sekValue + zeitstrafe - matoaugeValue * 3;
 
-                    // // Berechnung der Rundenzeit
-                    // var rundenzeit = sekValue - matoaugeValue * 3 - rmValue + fehlerValue * 5 + strafeValue * 10 + ständerValue * 20;
+                // Gesamtzeitstrafe und Gesamtzeit hinzufügen
+                totalTimePenalty += zeitstrafe;
+                totalTime += rundenzeit;
 
                     tr.innerHTML = `
                         <td>${entfernung}</td>
-                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Sek}" name="${entfernung}-sek"></td>
-                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Matoauge}" name="${entfernung}-ma"></td>
-                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Restmato}" name="${entfernung}-rm"></td>
-                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Fehler}" name="${entfernung}-fehler"></td>
-                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Strafe}" name="${entfernung}-strafe"></td>
-                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${schnellbogenschiessen.Sekunden[`${entfernung}M`].Ständer}" name="${entfernung}-ständer"></td>
-                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Zeitstarfe}</td>
-                        <td>${schnellbogenschiessen.Sekunden[`${entfernung}M`].Rundenzeit}</td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${sekValue}" name="${entfernung}-sek"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${matoaugeValue}" name="${entfernung}-ma"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${rmValue}" name="${entfernung}-rm"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${fehlerValue}" name="${entfernung}-fehler"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${strafeValue}" name="${entfernung}-strafe"></td>
+                        <td><input class="form-control custom-input" style="width: 100px;" type="number" value="${ständerValue}" name="${entfernung}-ständer"></td>
+                        <td>${zeitstrafe}</td>
+                        <td>${rundenzeit}</td>
+
                     `;
                     modalTableBody.appendChild(tr);
                 });
 
-                // Berechnung der Gesamtzeitstrafe und Gesamtzeit
-                var totalTimePenalty = 77; //if Graduierung{ if(sek>max){ Sek-max=Strafzeit   }    } 
-                var totalTime = schnellbogenschiessen.Sekunden.zehnM.Sek /*Rundenzeit*/ + schnellbogenschiessen.Sekunden.zwanzigM.Sek + schnellbogenschiessen.Sekunden.dreizigM.Sek; //-Ma*3  - RM + fehler*5 + strafe*10 + ständer*20
+                // Farbe der Gesamtzeit basierend auf der Graduierung setzen
+                var maxTime = (graduierung === '6.Kyu (weiß)' || graduierung === '5.Kyu (gelb)' || graduierung === '4.Kyu (orange)') ? 180 : 150;
+                console.log(maxTime);
+                    if (totalTime > maxTime) {
+                        document.getElementById('totalTime').style.color = 'red';
+                    } else {
+                        document.getElementById('totalTime').style.color = 'green';
+                    }
+    
 
-                // Aktualisieren der Fußzeile der Tabelle
-                document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
-                document.getElementById('totalTime').textContent = totalTime;
 
-                // Modal öffnen
-                $('#exampleModalTable').modal('show');
+                    // Aktualisieren der Fußzeile der Tabelle
+                    document.getElementById('totalTimePenalty').textContent = totalTimePenalty;
+                    document.getElementById('totalTime').textContent = totalTime;
 
-                // Set the selectedNummer globally
-                window.selectedNummer = teilnehmerNummer;
+                    // Modal öffnen
+                    //$('#exampleModalTable').modal('show');
+
+                    // Set the selectedNummer globally
+                    window.selectedNummer = teilnehmerNummer;
+                }
+                }).catch((error) => {
+                    console.error("Error getting document:", error);
+                });
             }
-        }).catch((error) => {
-            console.error("Error getting document:", error);
+
+        
+        // Funktion zum Speichern der geänderten Daten in Firebase
+        function saveDataToFirebase() {
+        var teilnehmerNummer = window.selectedNummer;
+        const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + teilnehmerNummer);
+        
+        var dataToUpdate = {};
+        var totalTimePenalty = 0;
+        var totalTime = 0;
+
+        // Daten aus den Input-Feldern lesen und vorbereiten
+        var dataToUpdate = {};
+        ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
+            var sekValue = parseFloat(document.querySelector(`input[name="${entfernung}-sek"]`).value);
+            var matoaugeValue = parseFloat(document.querySelector(`input[name="${entfernung}-ma"]`).value);
+            var rmValue = parseFloat(document.querySelector(`input[name="${entfernung}-rm"]`).value);
+            var fehlerValue = parseFloat(document.querySelector(`input[name="${entfernung}-fehler"]`).value);
+            var strafeValue = parseFloat(document.querySelector(`input[name="${entfernung}-strafe"]`).value);
+            var ständerValue = parseFloat(document.querySelector(`input[name="${entfernung}-ständer"]`).value);
+
+            // Berechnung der Zeitstrafe
+            var zeitstrafe = fehlerValue * 5 + strafeValue * 10 + ständerValue * 20;
+            // Berechnung der Rundenzeit
+            var rundenzeit = sekValue + zeitstrafe - matoaugeValue * 3 + rmValue;
+
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Sek`] = isNaN(sekValue) ? 0 : sekValue;
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Matoauge`] = isNaN(matoaugeValue) ? 0 : matoaugeValue;
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Restmato`] = isNaN(rmValue) ? 0 : rmValue;
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Fehler`] = isNaN(fehlerValue) ? 0 : fehlerValue;
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Strafe`] = isNaN(strafeValue) ? 0 : strafeValue;
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Ständer`] = isNaN(ständerValue) ? 0 : ständerValue;
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Zeitstrafe`] = zeitstrafe;
+            dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Rundenzeit`] = rundenzeit;
+            
+            // Gesamtzeitstrafe und Gesamtzeit hinzufügen
+            totalTimePenalty += zeitstrafe;
+            totalTime += rundenzeit;
         });
+
+        // Speichern der Gesamtzeit und Gesamtstrafzeit
+        dataToUpdate[`Schnellbogenschießen/Sekunden/total/StrafZeit`] = totalTimePenalty;
+        dataToUpdate[`Schnellbogenschießen/Sekunden/total/Sek`] = totalTime;
+        console.log("Daten zum Aktualisieren:", dataToUpdate); // Konsolenausgabe zur Überprüfung der Daten
+
+        // Update in Firebase durchführen
+        update(teilnehmerRef, dataToUpdate)
+            .then(() => {
+                alert("Daten erfolgreich aktualisiert");
+            })
+            .catch((error) => {
+                alert("Fehler beim Speichern der Daten");
+                console.error("Error updating document:", error);
+            });
     }
 
-        // Funktion zum Speichern der geänderten Daten in Firebase
-            function saveDataToFirebase() {
-                var teilnehmerNummer = window.selectedNummer;
-                const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + teilnehmerNummer);
-
-                // Daten aus den Input-Feldern lesen und vorbereiten
-                var dataToUpdate = {};
-                ['zehn', 'zwanzig', 'dreizig'].forEach((entfernung) => {
-                    var sekValue = parseFloat(document.querySelector(`input[name="${entfernung}-sek"]`).value);
-                    var matoaugeValue = parseFloat(document.querySelector(`input[name="${entfernung}-ma"]`).value);
-                    var rmValue = parseFloat(document.querySelector(`input[name="${entfernung}-rm"]`).value);
-                    var fehlerValue = parseFloat(document.querySelector(`input[name="${entfernung}-fehler"]`).value);
-                    var strafeValue = parseFloat(document.querySelector(`input[name="${entfernung}-strafe"]`).value);
-                    var ständerValue = parseFloat(document.querySelector(`input[name="${entfernung}-ständer"]`).value);
-
-                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Sek`] = isNaN(sekValue) ? 0 : sekValue;
-                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Matoauge`] = isNaN(matoaugeValue) ? 0 : matoaugeValue;
-                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Restmato`] = isNaN(rmValue) ? 0 : rmValue;
-                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Fehler`] = isNaN(fehlerValue) ? 0 : fehlerValue;
-                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Strafe`] = isNaN(strafeValue) ? 0 : strafeValue;
-                    dataToUpdate[`Schnellbogenschießen/Sekunden/${entfernung}M/Ständer`] = isNaN(ständerValue) ? 0 : ständerValue;
-                });
-
-                console.log("Daten zum Aktualisieren:", dataToUpdate); // Konsolenausgabe zur Überprüfung der Daten
-
-                // Update in Firebase durchführen
-                update(teilnehmerRef, dataToUpdate)
-                    .then(() => {
-                        alert("Daten erfolgreich aktualisiert");
-                    })
-                    .catch((error) => {
-                        alert("Fehler beim Speichern der Daten");
-                        console.error("Error updating document:", error);
-                    });
-            }
+    // Event-Listener für den Speichern-Button
+    document.getElementById('saveRatingBtn').addEventListener('click', saveDataToFirebase);
 
 
         //--------Sortieren der Tabelle-------->

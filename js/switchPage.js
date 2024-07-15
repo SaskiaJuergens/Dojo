@@ -1,12 +1,21 @@
 // Die Funktion zum Wechseln der Seite
 function goToNewPage() {
-    // Hier ersetzen Sie "neue_seite.html" durch den Dateinamen Ihrer Zielseite
-    window.location.href = "FinalTable.html";
+    var urlParams = new URLSearchParams(window.location.search);
+    var tableName = urlParams.get('tableName');
+    if(tableName) {
+        window.location.href = 'FinalTable.html?source=Tabelle&tableName=' + encodeURIComponent(tableName);
+    } else {
+        console.error("tableName ist null");
+    }
 }
 // Den Button auswählen
 var pageChangeBtn = document.getElementById("FinalTableBtn");
 // Den Eventlistener hinzufügen, um auf Klicks zu reagieren
-pageChangeBtn.addEventListener("click", goToNewPage);
+if (pageChangeBtn) {
+    pageChangeBtn.addEventListener("click", goToNewPage);
+} else {
+    console.error("Button nicht gefunden!");
+}
 
 
 

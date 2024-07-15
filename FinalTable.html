@@ -21,7 +21,7 @@
                     <th rowspan="2" onclick="sortTable(1)">Vorname</th>
                     <th rowspan="2" onclick="sortTable(2)">Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
                     <th rowspan="2" onclick="sortTable(3)">Geburstdatum</th>
-                    <th rowspan="2" onclick="sortTable(4)">Alter<button>!</button></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
+                    <th rowspan="2" onclick="sortTable(4)">Alter</th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
                     <th rowspan="2" onclick="sortTable(5)">Nationalität</th>
                     <th rowspan="2" onclick="sortTable(6)">Verein</th>
                     <th rowspan="2" onclick="sortTable(7)">Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
@@ -34,7 +34,7 @@
                     <th colspan="2">Wehrturm</th>
                     <th colspan="2">Präzisionschießen</th>
                     <th rowspan="2"></th>
-                    <th colspan="3">Schnellbogenschießen</th>
+                    <th colspan="2">Schnellbogenschießen</th>
                 </tr>
                 <tr> 
                     <th onclick="sortTable(8)">Pkt.</th>
@@ -42,8 +42,7 @@
                     <th onclick="sortTable(10)">Pkt.</th>
                     <th onclick="sortTable(11)">Plazierung</th>
                     <th onclick="sortTable(12)">Sekunden</th>
-                    <th onclick="sortTable(13)">Pkt.</th>
-                    <th onclick="sortTable(14)">Plazierung</th>
+                    <th onclick="sortTable(13)">Plazierung</th>
                 </tr>
             </thead>
             <tbody id="tbody1">
@@ -80,24 +79,62 @@
         import{getDatabase, ref, child, onValue, get, set, update, remove} from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
         const db = getDatabase();
         
-//-------------Getting all Data ----------->
-function GetAllDataRealTime(){
+
+        // Extrahiere den tableName aus der URL Tabelle & Bewertung
+        var urlParams = new URLSearchParams(window.location.search);
+        var tableName = urlParams.get('tableName');
+        // Verwende den tableName auf der Seite
+        console.log('TableName:', tableName);
+
+        // Die Funktion zum Wechseln der Seite
+        function goBackToPage() {
+            var urlParams = new URLSearchParams(window.location.search);
+            if(tableName) {
+                window.location.href = 'Tabelle.html?tableName=' + encodeURIComponent(tableName);
+            } else {
+                console.error("tableName ist null");
+            }
+        }
+
+        // Event-Listener zum Zurück-Button hinzufügen
+        var ChangeBackBtn = document.getElementById("backBtn");
+        if (ChangeBackBtn) { // Sicherstellen, dass der Button existiert
+            ChangeBackBtn.addEventListener("click", goBackToPage);
+        } else {
+            console.error("Button nicht gefunden!"); // Falls der Button nicht gefunden wird
+        }
+
+
+    //-------------Getting all Data ----------->
+    function GetAllDataRealTime() {
             const dbRef = ref(db, "Tabellen/Probe Tabelle/Teilnehmer");
 
-            onValue(dbRef,(snapshot)=>{
+            onValue(dbRef, (snapshot) => {
                 var teilnehmer = [];
                 snapshot.forEach(childSnapshot => {
                     teilnehmer.push(childSnapshot.val());
                 });
+
+                // Sortieren der Teilnehmer nach der Gesamtzeit (Sekunden) aufsteigend
+                teilnehmer.sort((a, b) => a.Schnellbogenschießen.Sekunden.total.Sek - b.Schnellbogenschießen.Sekunden.total.Sek);
+
+                // Platzierungen berechnen und zuweisen
+                teilnehmer.forEach((t, index) => {
+                    t.Schnellbogenschießen.Platzierung = index + 1;
+                });
+
                 AddAllTeilnehmer(teilnehmer);
-            })
+            });
         }
         window.onload = GetAllDataRealTime;
+
+
+
 
     //-------- Filling Tabelle -------->
         var tbody = document.getElementById('tbody1');
 
-        function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein, fastSekValue, fastPktValue, fastPlatzValue){
+        function AddTeilnehmer(name, vorname, data, age, rank, sex, nation, verein, fastPlatzValue, fastSekValue,){
             let trow = document.createElement("tr");
             let td1 = document.createElement("td");
             let td2 = document.createElement("td");
@@ -109,7 +146,6 @@ function GetAllDataRealTime(){
             let td8 = document.createElement("td");
             let td14 = document.createElement("td");
             let td15 = document.createElement("td");
-            let td16 = document.createElement("td");
 
             td1.innerHTML= name;
             td2.innerHTML= vorname;
@@ -120,8 +156,7 @@ function GetAllDataRealTime(){
             td7.innerHTML= verein;
             td8.innerHTML= rank;
             td14.innerHTML= fastSekValue;
-            td15.innerHTML= fastPktValue;
-            td16.innerHTML= fastPlatzValue;
+            td15.innerHTML= fastPlatzValue;
     
             trow.appendChild(td1);
             trow.appendChild(td2);
@@ -169,7 +204,6 @@ function GetAllDataRealTime(){
 
             trow.appendChild(td14);
             trow.appendChild(td15);
-            trow.appendChild(td16);
 
         }
 
@@ -185,9 +219,8 @@ function GetAllDataRealTime(){
                     element.Geschlecht,
                     element.Nationalität,
                     element.Verein,
-                    element.Schnellbogenschießen.Pkt,
                     element.Schnellbogenschießen.Platzierung,
-                    element.Schnellbogenschießen.Sekunden
+                    element.Schnellbogenschießen.Sekunden.total.Sek
                     /*element.Präzisionschießen.Pkt,
                     element.Präzisionschießen.Plazierung,
                     element.Wehrturm.Pkt,
@@ -195,6 +228,7 @@ function GetAllDataRealTime(){
                 );
             });
         }
+
     </script>
 </body>
 </html>
