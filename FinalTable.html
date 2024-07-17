@@ -10,7 +10,7 @@
 
 <body>
     <button id="backBtn">Zurück zur Teilnehmerliste</button>
-    <button id="TopListBtn">Zur Bestenliste</button>
+    <!--<button id="TopListBtn">Zur Bestenliste</button>-->
 
     <div class="table-container">
         <h1>Bewertungsliste</h1>
@@ -107,7 +107,7 @@
 
     //-------------Getting all Data ----------->
     function GetAllDataRealTime() {
-            const dbRef = ref(db, "Tabellen/Probe Tabelle/Teilnehmer");
+            const dbRef = ref(db, "Tabellen" + tableName + "Teilnehmer");
 
             onValue(dbRef, (snapshot) => {
                 var teilnehmer = [];
@@ -229,6 +229,9 @@
             });
         }
 
+    //---------------------Sortieren der Tabelle
+        var database = firebase.database();
+        varTeilnehmerRef = database.ref();
     </script>
 </body>
 </html>

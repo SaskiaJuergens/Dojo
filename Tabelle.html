@@ -327,7 +327,9 @@
         function GetAllDataRealTime() {
             const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
 
-            onValue(dbRef, (snapshot) => {
+            onValue(dbRef, (snapshot) => {  
+                tbody.innerHTML = ''; // Clear the existing rows
+                
                 snapshot.forEach(childSnapshot => {
                     var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
                     // Hier rufen Sie die Teilnehmerdaten unter Verwendung von num als Schlüssel ab
@@ -604,8 +606,8 @@
             }
 
         
-        // Funktion zum Speichern der geänderten Daten in Firebase
-        function saveDataToFirebase() {
+     // Funktion zum Speichern der geänderten Daten in Firebase
+    function saveDataToFirebase() {
         var teilnehmerNummer = window.selectedNummer;
         const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + teilnehmerNummer);
         
@@ -662,7 +664,7 @@
     document.getElementById('saveRatingBtn').addEventListener('click', saveDataToFirebase);
 
 
-        //--------Sortieren der Tabelle-------->
+    //--------Sortieren der Tabelle-------->
     </script>
 </body>
 </html>
