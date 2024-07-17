@@ -17,14 +17,14 @@
         <table class="table" id="TeilenhmerTable">
             <thead>
                 <tr>
-                    <th rowspan="2" onclick="sortTable(0)">Name</th>
-                    <th rowspan="2" onclick="sortTable(1)">Vorname</th>
-                    <th rowspan="2" onclick="sortTable(2)">Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
-                    <th rowspan="2" onclick="sortTable(3)">Geburstdatum</th>
-                    <th rowspan="2" onclick="sortTable(4)">Alter</th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
-                    <th rowspan="2" onclick="sortTable(5)">Nationalität</th>
-                    <th rowspan="2" onclick="sortTable(6)">Verein</th>
-                    <th rowspan="2" onclick="sortTable(7)">Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
+                    <th rowspan="2" id ='Name'>Name</th>
+                    <th rowspan="2" id = 'Vorname'>Vorname</th>
+                    <th rowspan="2" id = 'Geschlecht'>Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
+                    <th rowspan="2" id = 'Geburstdatum'>Geburstdatum</th>
+                    <th rowspan="2" id = 'Alter'>Alter<!--<button>!</button>--></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
+                    <th rowspan="2" id = 'Nationalität'>Nationalität</th>
+                    <th rowspan="2" id = 'Verein'>Verein</th>
+                    <th rowspan="2" id = 'Graduierung'>Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
                                             Shoden (Gelb)  (初伝) - Erste Stufe 5. Kyu
                                             Chuden (Orange)  (中伝) - Mittelstufe 4. Kyu
                                             Okuden (Grün) (奥伝) - Innere Stufe 3.Kyu
@@ -55,7 +55,7 @@
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
-    <script src="js/switchPageinFinal.js"></script>
+    <!--<script src="js/switchPageinFinal.js"></script>-->
 
     <script type="module">
 //-------------Firebase DB Conection ----------->
@@ -105,9 +105,13 @@
         }
 
 
+        
+    //---------------------Sortieren der Tabelle
+
+
     //-------------Getting all Data ----------->
     function GetAllDataRealTime() {
-            const dbRef = ref(db, "Tabellen" + tableName + "Teilnehmer");
+        const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
 
             onValue(dbRef, (snapshot) => {
                 var teilnehmer = [];
@@ -229,9 +233,7 @@
             });
         }
 
-    //---------------------Sortieren der Tabelle
-        var database = firebase.database();
-        varTeilnehmerRef = database.ref();
+
     </script>
 </body>
 </html>

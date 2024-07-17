@@ -1,9 +1,9 @@
-// Die Funktion zum Wechseln der Seite
-function goToPage() {
-    window.location.href = "TopList.html";
-}
-var ChangeBtn = document.getElementById("TopListBtn");
-ChangeBtn.addEventListener("click", goToPage);
+// // Die Funktion zum Wechseln der Seite
+// function goToPage() {
+//     window.location.href = "TopList.html";
+// }
+// var ChangeBtn = document.getElementById("TopListBtn");
+// ChangeBtn.addEventListener("click", goToPage);
 
 // Die Funktion zum Wechseln der Seite
 function goBackToPage() {

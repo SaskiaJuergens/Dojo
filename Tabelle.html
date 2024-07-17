@@ -20,14 +20,14 @@
         <table class="table" id="TeilenhmerTable">
             <thead>
                 <tr>
-                    <th onclick="sortTable('Name')">Name</th>
-                    <th onclick="sortTable('Vorname')">Vorname</th>
-                    <th onclick="sortTable('Geschlecht')">Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
-                    <th onclick="sortTable('Geburstdatum')">Geburstdatum</th>
-                    <th onclick="sortTable('Alter')">Alter<!--<button>!</button>--></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
-                    <th onclick="sortTable('Nationalität')">Nationalität</th>
-                    <th onclick="sortTable('Verein')">Verein</th>
-                    <th onclick="sortTable('Graduierung')">Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
+                    <th id ='Name'>Name</th>
+                    <th id = 'Vorname'>Vorname</th>
+                    <th id = 'Geschlecht'>Geschlecht</th> <!--Drop Down: Weiblich, Männlich, Nonbinär-->
+                    <th id = 'Geburstdatum'>Geburstdatum</th>
+                    <th id = 'Alter'>Alter<!--<button>!</button>--></th> <!-- Kind (bis 13), Jugendlich (14-18), Erwachsen (ab18 - dann auch erst schwarz Gurt erlaubt)-->
+                    <th id = 'Nationalität'>Nationalität</th>
+                    <th id = 'Verein'>Verein</th>
+                    <th id = 'Graduierung'>Graduierung</th> <!--Mokuroku (Weiß)  (木録) - Grundstufe 6.Kyu
                                             Shoden (Gelb)  (初伝) - Erste Stufe 5. Kyu
                                             Chuden (Orange)  (中伝) - Mittelstufe 4. Kyu
                                             Okuden (Grün) (奥伝) - Innere Stufe 3.Kyu
@@ -324,11 +324,50 @@
             }
         });
 
+        var fieldName;
+        // Add event listeners for sorting
+        document.getElementById('Name').addEventListener('click', () => {
+            fieldName = "Name"; // Setzen Sie fieldName auf "Name"
+            GetAllDataRealTime(); // Rufen Sie GetAllDataRealTime auf
+        });
+        document.getElementById('Vorname').addEventListener('click', () => {
+            fieldName = "Vorname"; 
+            GetAllDataRealTime(); 
+        });
+        document.getElementById('Geschlecht').addEventListener('click', () => {
+            fieldName = "Geschlecht"; 
+            GetAllDataRealTime(); 
+        });
+        document.getElementById('Geburstdatum').addEventListener('click', () => {
+            fieldName = "Geburstdatum"; 
+            GetAllDataRealTime(); 
+        });
+        document.getElementById('Alter').addEventListener('click', () => {
+            fieldName = "Alter"; 
+            GetAllDataRealTime(); 
+        });
+        document.getElementById('Nationalität').addEventListener('click', () => {
+            fieldName = "Nationalität"; 
+            GetAllDataRealTime(); 
+        });
+        document.getElementById('Verein').addEventListener('click', () => {
+            fieldName = "Verein"; 
+            GetAllDataRealTime(); 
+        });
+        document.getElementById('Graduierung').addEventListener('click', () => {
+            fieldName = "Graduierung"; 
+            GetAllDataRealTime(); 
+        });
+        
 
         //-------------Getting all Data ----------->
         function GetAllDataRealTime() {
+            if(!fieldName){
+                fieldName = "Name";
+            }   
+            console.log(fieldName);
 
-            const dbRef = query(ref(db, "Tabellen/" + tableName + "/Teilnehmer"), orderByChild("Geschlecht"));
+            const dbRef = query(ref(db, "Tabellen/" + tableName + "/Teilnehmer"), orderByChild(fieldName));
 
             onValue(dbRef, (snapshot) => {  
                 tbody.innerHTML = ''; // Clear the existing rows
