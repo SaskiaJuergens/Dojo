@@ -347,38 +347,6 @@
         }
         window.onload = GetAllDataRealTime;
 
-        // Sortierfunktion
-        let sortOrder = {};
-        function sortTable(n) {
-            const table = document.getElementById("TeilnehmerTable");
-            const rows = Array.from(table.rows).slice(1); // exclude header row
-            const header = table.rows[0].cells[n].innerText;
-
-            if (sortOrder[header] === undefined) {
-                sortOrder[header] = true;
-            } else {
-                sortOrder[header] = !sortOrder[header];
-            }
-
-            rows.sort((a, b) => {
-                const aText = a.cells[n].innerText.toLowerCase();
-                const bText = b.cells[n].innerText.toLowerCase();
-
-                if (sortOrder[header]) {
-                    return aText > bText ? 1 : -1;
-                } else {
-                    return aText < bText ? 1 : -1;
-                }
-            });
-
-            // Leeren Sie die Tabelle
-            table.tBodies[0].innerHTML = "";
-
-            // Neue sortierte Reihenfolge einfügen
-            rows.forEach(row => table.tBodies[0].appendChild(row));
-        }
-
-
     //-------- Filling Tabelle -------->
         //var Nummer = 0;
         var teilnehmerList = [];
