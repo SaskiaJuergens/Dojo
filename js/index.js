@@ -21,7 +21,7 @@ document.getElementById("AnmeldeBtn").addEventListener("click", handleLogin);
 
 //Wenn als Gast weiter nur Daten anschaubar und nicht bearbeitbar. Extre html codieren maybe
 function goToGastPage() {
-    //window.location.href = "Startseite.html";
+    window.location.href = "Gast/GastStartseite.html";
 }
 // Event Listener für die Gastschaltfläche
-document.getElementById("GastBtn").addEventListener("click", goToGuestPage);
+document.getElementById("GastBtn").addEventListener("click", goToGastPage);
