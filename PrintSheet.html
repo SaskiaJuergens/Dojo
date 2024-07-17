@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset='UTF-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabellenzeile bearbeiten</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/StyleSheet1.css" />
+</head>
+<style>
+/* @media print {
+    body * {
+        display: none;
+    }
+    #printable *{
+        display: block;
+    }
+} */
+</style>
+<body>
+    <button id="backBtn">Zurück</button>
+    <button id="print">Drucken</button>
+
+    <br>
+    <div class="printable">
+    <img src="Print.png" alt="Print Sheet" class="background">
+        <div class="printInfo">
+            <!-- Placeholder for dynamic data -->
+        </div>
+    </div>
+
+
+    <div class="table-container">
+        <br>
+        <table class="table" id="TeilenhmerTable">
+            <thead>
+            </thead>
+            <tbody id="tbody1">   
+                <!-- Placeholder for dynamic data -->
+            </tbody>
+        </table>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+    <script type="module">
+    //-------------Firebase DB Conection ----------->
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-app.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA8AWwq9SWpTjLwxzVaVKuo6HcVdfH5FhU",
+            authDomain: "dojo-website-d7f0c.firebaseapp.com",
+            databaseURL: "https://dojo-website-d7f0c-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "dojo-website-d7f0c",
+            storageBucket: "dojo-website-d7f0c.appspot.com",
+            messagingSenderId: "157008216879",
+            appId: "1:157008216879:web:461d14ed280ed2a6ab17da"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+
+        import{getDatabase, ref, get, set, update, remove, onValue, child,
+            query, limitToFirst, limitToLast, orderByChild, startAt, endAt, endBefore, equalTo
+        } from "https://www.gstatic.com/firebasejs/10.10.0/firebase-database.js";
+        const db = getDatabase();     
+
+
+        // Extrahiere den tableName aus der URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var tableName = urlParams.get('tableName');
+        // Verwende den tableName auf der Seite
+        console.log('TableName:', tableName);
+
+
+        // Die Funktion zum Wechseln der Seite
+        function goBackToPage() {
+            var urlParams = new URLSearchParams(window.location.search);
+            window.location.href = 'Tabelle.html?tableName=' + encodeURIComponent(tableName);
+        }
+        // Event-Listener zum Zurück-Button hinzufügen
+        var ChangeBackBtn = document.getElementById("backBtn");
+        if (ChangeBackBtn) { // Sicherstellen, dass der Button existiert
+            ChangeBackBtn.addEventListener("click", goBackToPage);
+        } else {
+            console.error("Button nicht gefunden!"); // Falls der Button nicht gefunden wird
+        }
+
+
+        //-------------Getting all Data ----------->
+        function GetAllDataRealTime() {
+            const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
+
+            onValue(dbRef, (snapshot) => {  
+                tbody.innerHTML = ''; // Clear the existing rows
+
+                snapshot.forEach(childSnapshot => {
+                    var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
+                    // Hier rufen Sie die Teilnehmerdaten unter Verwendung von num als Schlüssel ab
+                    const teilnehmerRef = ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + num);
+                    get(teilnehmerRef).then((snapshot) => {
+                        var data = snapshot.val();
+                        if (data) {
+                            data.Nummer = num; // Fügen Sie die Teilnehmernummer zu den Teilnehmerdaten hinzu
+                            console.log("Nummer:", num);
+                            AddTeilnehmer(data);
+                            console.log("Data:", data);
+                        }
+                    });
+                });
+            })
+        }
+        window.onload = GetAllDataRealTime;
+
+    //-------- Filling Tabelle -------->
+        //var Nummer = 0;
+        var teilnehmerList = [];
+        var tbody = document.getElementById('tbody1');
+
+        function AddTeilnehmer(data) {
+            var trow = document.createElement("tr");
+            var td0 = document.createElement("td");
+            var td1 = document.createElement("td");
+            var td2 = document.createElement("td");
+            var td3 = document.createElement("td");
+            var td4 = document.createElement("td");
+            var td5 = document.createElement("td");
+            var td6 = document.createElement("td");
+            var td7 = document.createElement("td");
+            var td8 = document.createElement("td");
+            var ratingButton = document.createElement("td");
+            var ControlDiv = document.createElement("td");
+
+            td0.innerHTML = data.Nummer; // Hier verwenden wir data.Nummer, um die Teilnehmernummer anzuzeigen
+            td1.innerHTML = data.Name;
+            td2.innerHTML = data.Vorname;
+            td3.innerHTML = data.Geschlecht;
+            td4.innerHTML = data.Geburstdatum;
+            td5.innerHTML = data.Alter;
+            td6.innerHTML = data.Nationalität;
+            td7.innerHTML = data.Verein;
+            td8.innerHTML = data.Graduierung;
+
+            trow.appendChild(td1);
+            trow.appendChild(td2);
+            trow.appendChild(td3);
+            trow.appendChild(td4);
+            trow.appendChild(td5);
+            trow.appendChild(td6);
+            trow.appendChild(td7);
+            trow.appendChild(td8);
+
+            tbody.appendChild(trow);
+        }
+
+
+        function AddAllTeilnehmer(Teilnehmer) {
+            Nummer = 0;
+            tbody.innerHTML = "";
+            Teilnehmer.forEach(element => {
+                
+                AddTeilnehmer(
+                    element.Name,
+                    element.Vorname,
+                    element.Geburstdatum,
+                    element.Alter,
+                    element.Graduierung,
+                    element.Geschlecht,
+                    element.Nationalität,
+                    element.Verein,
+                    element.Schnellbogenschießen.Platzierung,
+                    element.Schnellbogenschießen.Sekunden,
+                    element.Nummer
+                );
+            });
+        }
+        
+
+
+
+    //////////////////////////////////////////////Print Funtkion
+    const printBtn = document.getElementById('print')
+    printBtn.addEventListener('click', function(){
+        print();
+    })
+    </script>
+</body>
+</html>

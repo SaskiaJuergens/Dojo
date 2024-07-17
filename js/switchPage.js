@@ -44,3 +44,20 @@ if (ChangeToRegeln) {
 } else {
     console.error("Button nicht gefunden!");
 }
+
+//Zum Print Sheet
+function toPrintPage() {
+    var urlParams = new URLSearchParams(window.location.search);
+    var tableName = urlParams.get('tableName');
+    if(tableName) {
+        window.location.href = 'PrintSheet.html?source=Tabelle&tableName=' + encodeURIComponent(tableName);
+    } else {
+        console.error("tableName ist null");
+    }
+}
+var ChangeToPrint = document.getElementById("print");
+if (ChangeToPrint) {
+    ChangeToPrint.addEventListener("click", toPrintPage);
+} else {
+    console.error("Button nicht gefunden!");
+}
