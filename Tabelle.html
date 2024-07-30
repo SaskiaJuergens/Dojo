@@ -244,11 +244,14 @@
                 Nummer++;
                 AddData(); // Rekursiver Aufruf der Funktion, um erneut zu versuchen
             } else {
+                // Formatieren Sie das Alter
+                const formattedAge = Age.value < 10 ? `00${Age.value}` : Age.value;
+
                 set(ref(db, 'Tabellen/' + tableName + '/Teilnehmer/' + Nummer), { // Verwenden Sie die erhöhte Nummer
                     Vorname: Fname.value,
                     Name: Lname.value,
                     Geburstdatum: Datum.value,
-                    Alter: Number(Age.value),
+                    Alter: formattedAge,
                     Graduierung: Rank.value,
                     Geschlecht: Sex.value,
                     Nationalität: Nation.value,
