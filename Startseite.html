@@ -70,23 +70,25 @@
         let data = document.getElementById('data');
         
         function createNewTable() {    
-            set(ref(db, 'Tabellen/' + name.value),{
+            set(ref(db, 'Tabellen/' + name.value), {
                 Jahr: Number(data.value),
                 Teilnehmer: {}
-            }).then (()=>{
-                alert("Tabelle hinzugefügt.")
-            }).catch((error)=>{
+            }).then(() => {
+                alert("Tabelle hinzugefügt.");
+                GetAllDataRealTime(); // Update the table after creation
+            }).catch((error) => {
                 alert("Fehler");
                 console.log(error);
-            }) 
-        
+            }); 
         }
     AddBtn.addEventListener('click', createNewTable);
 
     // -----------Getting all Tabellen -----------
-        function GetAllDataRealTime(){
+        function GetAllDataRealTime() {
             const dbRef = ref(db, "Tabellen/");
-            onValue(dbRef,(snapshot)=>{
+            onValue(dbRef, (snapshot) => {
+                const tbody = document.getElementById('tbody1');
+                tbody.innerHTML = ''; // Clear existing rows
                 snapshot.forEach(childSnapshot => {
                     const tableName = childSnapshot.key; // Extrahiere den Tabellennamen aus dem Pfad
                     const tableData = childSnapshot.val(); // Die Daten der Tabelle
@@ -94,8 +96,8 @@
                 });
             });
         }
-        window.onload = GetAllDataRealTime;
-    
+        window.onload = GetAllDataRealTime
+
         var tbody = document.getElementById('tbody1');
         function AddTabelle(name, data, teilnehmer) {
             var trow = document.createElement("tr");
