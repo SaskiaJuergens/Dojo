@@ -8,37 +8,56 @@
     <link rel="stylesheet" href="css/StyleSheet1.css" />
 </head>
 <style>
-/* @media print {
-    body * {
-        display: none;
+    .printable {
+        position: relative;
+        width: 1000px;
+        height: 1414px;
+        margin-bottom: 20px;
     }
-    #printable *{
-        display: block;
+    .background {
+        width: 100%;
+        height: 100%;
     }
-} */
+    .printInfo {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        padding: 10px;
+    }
+    .printInfo div {
+        position: absolute;
+        background-color: rgba(255, 255, 255, 0.8); /* Add background for better visibility */
+        padding: 2px 5px;
+        border-radius: 3px;
+    }
+    #backBtn {
+        margin-bottom: 20px;
+    }
+    @media print {
+        body * {
+            display: none;
+        }
+        .printable, .printable * {
+            display: block;
+        }
+        .print-container {
+            page-break-after: always;
+        }
+    }
 </style>
 <body>
     <button id="backBtn">Zurück</button>
     <button id="print">Drucken</button>
+    <div id="print-container" class="print-container"></div>
 
     <br>
     <div class="printable">
-    <img src="Print.png" alt="Print Sheet" class="background">
+    <!--<img src="Print.png" alt="Print Sheet" class="background">-->
         <div class="printInfo">
             <!-- Placeholder for dynamic data -->
         </div>
-    </div>
-
-
-    <div class="table-container">
-        <br>
-        <table class="table" id="TeilenhmerTable">
-            <thead>
-            </thead>
-            <tbody id="tbody1">   
-                <!-- Placeholder for dynamic data -->
-            </tbody>
-        </table>
     </div>
 
 
@@ -98,7 +117,7 @@
             const dbRef = ref(db, "Tabellen/" + tableName + "/Teilnehmer");
 
             onValue(dbRef, (snapshot) => {  
-                tbody.innerHTML = ''; // Clear the existing rows
+
 
                 snapshot.forEach(childSnapshot => {
                     var num = childSnapshot.key; // Die eindeutige Nummer aus der Datenbank abrufen
@@ -109,85 +128,37 @@
                         if (data) {
                             data.Nummer = num; // Fügen Sie die Teilnehmernummer zu den Teilnehmerdaten hinzu
                             console.log("Nummer:", num);
-                            AddTeilnehmer(data);
                             console.log("Data:", data);
+                            createPrintTemplate(data);
                         }
                     });
                 });
             })
         }
-        window.onload = GetAllDataRealTime;
+        window.onload = GetAllDataRealTime;  
 
-    //-------- Filling Tabelle -------->
-        //var Nummer = 0;
-        var teilnehmerList = [];
-        var tbody = document.getElementById('tbody1');
-
-        function AddTeilnehmer(data) {
-            var trow = document.createElement("tr");
-            var td0 = document.createElement("td");
-            var td1 = document.createElement("td");
-            var td2 = document.createElement("td");
-            var td3 = document.createElement("td");
-            var td4 = document.createElement("td");
-            var td5 = document.createElement("td");
-            var td6 = document.createElement("td");
-            var td7 = document.createElement("td");
-            var td8 = document.createElement("td");
-            var ratingButton = document.createElement("td");
-            var ControlDiv = document.createElement("td");
-
-            td0.innerHTML = data.Nummer; // Hier verwenden wir data.Nummer, um die Teilnehmernummer anzuzeigen
-            td1.innerHTML = data.Name;
-            td2.innerHTML = data.Vorname;
-            td3.innerHTML = data.Geschlecht;
-            td4.innerHTML = data.Geburstdatum;
-            td5.innerHTML = data.Alter;
-            td6.innerHTML = data.Nationalität;
-            td7.innerHTML = data.Verein;
-            td8.innerHTML = data.Graduierung;
-
-            trow.appendChild(td1);
-            trow.appendChild(td2);
-            trow.appendChild(td3);
-            trow.appendChild(td4);
-            trow.appendChild(td5);
-            trow.appendChild(td6);
-            trow.appendChild(td7);
-            trow.appendChild(td8);
-
-            tbody.appendChild(trow);
-        }
-
-
-        function AddAllTeilnehmer(Teilnehmer) {
-            Nummer = 0;
-            tbody.innerHTML = "";
-            Teilnehmer.forEach(element => {
-                
-                AddTeilnehmer(
-                    element.Name,
-                    element.Vorname,
-                    element.Geburstdatum,
-                    element.Alter,
-                    element.Graduierung,
-                    element.Geschlecht,
-                    element.Nationalität,
-                    element.Verein,
-                    element.Schnellbogenschießen.Platzierung,
-                    element.Schnellbogenschießen.Sekunden,
-                    element.Nummer
-                );
-            });
+        function createPrintTemplate(data) {
+            const container = document.createElement('div');
+            container.className = 'printable';
+            container.innerHTML = `
+                <img src="Print.png" alt="Print Sheet" class="background">
+                <div class="printInfo">
+                    <div style="top: 173px; left: 210px;">${data.Name}</div>
+                    <div style="top: 202px; left: 210px;">${data.Vorname}</div>
+                    <div style="top: 260px; left: 210px;">${data.Geschlecht}</div>
+                    <div style="top: 231px; left: 210px;">${data.Geburstdatum}</div>
+                    <!-- <div style="top: 170px; left: 50px;">${data.Alter}</div> -->
+                    <div style="top: 260px; left: 510px;">${data.Nationalität}</div>
+                    <div style="top: 202px; left: 510px;">${data.Verein}</div>
+                    <div style="top: 202px; left: 800px;">${data.Graduierung}</div>
+                </div>
+            `;
+            document.getElementById('print-container').appendChild(container);
         }
         
-
-
-
     //////////////////////////////////////////////Print Funtkion
-    const printBtn = document.getElementById('print')
-    printBtn.addEventListener('click', function(){
-        print();
+    document.getElementById('print').addEventListener('click', function() {
+            window.print();
     })
     </script>
 </body>
